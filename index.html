@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Optimizely Test Page</title>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var projectId = params.get('project_id');
+      if (projectId) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.optimizely.com/js/' + encodeURIComponent(projectId) + '.js';
+        document.head.appendChild(s);
+      }
+    })();
+  </script>
+  <script type="text/javascript">!function(e,t){var n=t.createElement("script");n.type="text/javascript",n.crossorigin="anonymous",n.async=!0,n.src="https://content.zeotap.com/sdk/zeotap.min.js",n.onload=function(){};var s=t.getElementsByTagName("script")[0];s.parentNode.insertBefore(n,s);function o(e,t,n){function s(t){e[t]=function(){e[n].push([t].concat(Array.prototype.slice.call(arguments,0)))}}for(var o=0;o<t.length;o++)s(t[o])}var r=e.zeotap||{_q:[],_qcmp:[]};o(r,["init","setEventProperties","setUserProperties","setPageProperties","setMetaProperties","setUserIdentities","unsetUserIdentities","setZI"],"_q"),o(r,["setConsent","addAskForConsentActionListener"],"_qcmp"),e.zeotap=r}(window,document);</script>
+  <script type="text/javascript">
+    var __writeKey = new URLSearchParams(window.location.search).get('write_key') || '18116ee9-c6e4-4f8a-9345-2efe472deccf';
+    window.zeotap.init(__writeKey);
+  </script>
+  <script>
+    // Send Optimizely visitor ID to Zeotap as a page property (no listener needed)
+    (function poll() {
+      var visitorId = window["optimizely"] && window["optimizely"].get && window["optimizely"].get("visitor_id");
+      if (visitorId) {
+        window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId.randomId });
+      } else {
+        setTimeout(poll, 200);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <h1>Optimizely Test Page</h1>
+
+  <div id="status"></div>
+
+  <div id="info">
+    <h2>Decision Info (Account / Project / Visitor)</h2>
+    <pre id="decision">Waiting for data...</pre>
+    <h2>Active Experiments</h2>
+    <pre id="experiments">Waiting for data...</pre>
+    <h2>Active Campaigns</h2>
+    <pre id="campaigns">Waiting for data...</pre>
+    <h2>Variation Map</h2>
+    <pre id="variation-map">Waiting for data...</pre>
+    <h2>Active Pages</h2>
+    <pre id="pages">Waiting for data...</pre>
+    <h2>Visitor</h2>
+    <pre id="visitor">Waiting for data...</pre>
+    <h2>Redirect Info</h2>
+    <pre id="redirect">Waiting for data...</pre>
+  </div>
+
+  <hr>
+  <h2>Zeotap: Fire Event</h2>
+  <form id="event-form">
+    <div>
+      <label for="event-name">Event Name:</label>
+      <input id="event-name" type="text" placeholder="e.g. AddToCart" required />
+    </div>
+    <div style="margin-top:8px">
+      <label for="event-props">Event Properties (JSON):</label><br>
+      <textarea id="event-props" rows="4" cols="50" placeholder='{"productId": "ABC-123", "quantity": 1}'>{}</textarea>
+    </div>
+    <button type="submit" style="margin-top:8px">Fire Event</button>
+    <span id="event-status"></span>
+  </form>
+
+  <hr>
+  <h2>Zeotap: User Identities</h2>
+  <form id="identity-form">
+    <div>
+      <label for="identity-json">Identities (JSON):</label><br>
+      <textarea id="identity-json" rows="4" cols="50" placeholder='{"email": "[email protected]", "cellno": "1 5551234567"}'>{}</textarea>
+    </div>
+    <div style="margin-top:8px">
+      <button type="button" id="set-identity-btn">Set Identities</button>
+      <button type="button" id="unset-identity-btn">Unset Identities</button>
+      <span id="identity-status"></span>
+    </div>
+  </form>
+
+  <script>
+    // Zeotap Event form
+    document.getElementById('event-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var name = document.getElementById('event-name').value.trim();
+      var propsStr = document.getElementById('event-props').value.trim();
+      var statusSpan = document.getElementById('event-status');
+      try {
+        var props = propsStr ? JSON.parse(propsStr) : {};
+        window.zeotap.setEventProperties(name, props);
+        statusSpan.textContent = ' Fired "' + name + '"';
+      } catch (err) {
+        statusSpan.textContent = ' Error: ' + err.message;
+      }
+    });
+
+    // Zeotap Identity form
+    document.getElementById('set-identity-btn').addEventListener('click', function() {
+      var jsonStr = document.getElementById('identity-json').value.trim();
+      var statusSpan = document.getElementById('identity-status');
+      try {
+        var identities = JSON.parse(jsonStr);
+        window.zeotap.setUserIdentities(identities);
+        statusSpan.textContent = ' Identities set';
+      } catch (err) {
+        statusSpan.textContent = ' Error: ' + err.message;
+      }
+    });
+
+    document.getElementById('unset-identity-btn').addEventListener('click', function() {
+      var jsonStr = document.getElementById('identity-json').value.trim();
+      var statusSpan = document.getElementById('identity-status');
+      try {
+        var identities = JSON.parse(jsonStr);
+        window.zeotap.unsetUserIdentities();
+        statusSpan.textContent = ' Identities unset';
+      } catch (err) {
+        statusSpan.textContent = ' Error: ' + err.message;
+      }
+    });
+  </script>
+
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var projectId = params.get('project_id');
+    var statusEl = document.getElementById('status');
+
+    if (!projectId) {
+      statusEl.innerHTML =
+        '<form id="launch-form">' +
+          '<div><label for="pid">Project ID:</label> ' +
+          '<input id="pid" type="text" placeholder="e.g. 12345678" required /></div>' +
+          '<div style="margin-top:8px"><label for="wk">Zeotap Write Key:</label> ' +
+          '<input id="wk" type="text" placeholder="18116ee9-c6e4-4f8a-9345-2efe472deccf" value="18116ee9-c6e4-4f8a-9345-2efe472deccf" /></div>' +
+          '<button type="submit" style="margin-top:8px">Launch</button>' +
+        '</form>';
+      document.getElementById('launch-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var pid = document.getElementById('pid').value.trim();
+        var wk  = document.getElementById('wk').value.trim();
+        if (pid) {
+          var qs = '?project_id=' + encodeURIComponent(pid);
+          if (wk && wk !== '18116ee9-c6e4-4f8a-9345-2efe472deccf') {
+            qs += '&write_key=' + encodeURIComponent(wk);
+          }
+          window.location.search = qs;
+        }
+      });
+    } else {
+      statusEl.innerHTML = '<p>Optimizely project: <strong>' + projectId + '</strong> <button id="refresh-btn">Refresh</button></p>';
+
+      function refreshOptimizelyData() {
+        var state = window.optimizely && window.optimizely.get && window.optimizely.get('state');
+        if (!state) return;
+
+        var experiments  = state.getExperimentStates();
+        var campaigns    = state.getCampaignStates();
+        var decision     = state.getDecisionObject();
+        var variationMap = state.getVariationMap();
+        var pages        = state.getPageStates();
+        var visitor      = state.getVisitorId ? state.getVisitorId() : window.optimizely.get('visitor');
+        var redirect     = state.getRedirectInfo();
+
+        document.getElementById('decision').textContent      = JSON.stringify(decision, null, 2);
+        document.getElementById('experiments').textContent    = JSON.stringify(experiments, null, 2);
+        document.getElementById('campaigns').textContent      = JSON.stringify(campaigns, null, 2);
+        document.getElementById('variation-map').textContent  = JSON.stringify(variationMap, null, 2);
+        document.getElementById('pages').textContent          = JSON.stringify(pages, null, 2);
+        document.getElementById('visitor').textContent        = JSON.stringify(visitor, null, 2);
+        document.getElementById('redirect').textContent       = JSON.stringify(redirect, null, 2);
+      }
+
+      document.getElementById('refresh-btn').addEventListener('click', refreshOptimizelyData);
+
+      window.optimizely = window.optimizely || [];
+      window.optimizely.push({
+        type: "addListener",
+        filter: { type: "lifecycle", name: "activated" },
+        handler: refreshOptimizelyData
+      });
+    }
+  </script>
+</body>
+</html>

@@ -21,67 +21,659 @@
     window.zeotap.init(__writeKey);
   </script>
   <script>
-    // Send Optimizely visitor ID to Zeotap as a page property (no listener needed)
+    // Send Optimizely visitor ID to Zeotap as a page property
     (function poll() {
       var visitorId = window["optimizely"] && window["optimizely"].get && window["optimizely"].get("visitor_id");
       if (visitorId) {
-        window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId.randomId });
+        window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId });
+        console.log("[Zeotap] setPageProperties called with optimizely_visitor_id:", visitorId);
       } else {
         setTimeout(poll, 200);
       }
     })();
   </script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --border: #e1e5eb;
+      --text: #1a1f36;
+      --text-muted: #5a6072;
+      --primary: #0037ff;
+      --primary-light: #e8eeff;
+      --success: #0d8050;
+      --success-bg: #e6f4ed;
+      --warn: #bf7600;
+      --warn-bg: #fef3e0;
+      --error: #c5221f;
+      --error-bg: #fce8e6;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+    header {
+      background: var(--text);
+      color: #fff;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 { font-size: 20px; font-weight: 600; }
+    header .badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+    .card-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .card-body { padding: 16px 20px; }
+    .card-body pre {
+      background: #f8f9fb;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+      overflow: auto;
+      max-height: 400px;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Verification checks */
+    .check-list { list-style: none; }
+    .check-list li {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .check-list li:last-child { border-bottom: none; }
+    .check-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .check-pass { background: var(--success-bg); color: var(--success); }
+    .check-fail { background: var(--error-bg); color: var(--error); }
+    .check-warn { background: var(--warn-bg); color: var(--warn); }
+    .check-wait { background: #f0f0f0; color: #999; }
+
+    /* Experiment table */
+    .exp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .exp-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #f8f9fb;
+      border-bottom: 2px solid var(--border);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .exp-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .exp-table tr:last-child td { border-bottom: none; }
+    .exp-table tr:hover td { background: #f8f9fb; }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-active { background: var(--success-bg); color: var(--success); }
+    .status-inactive { background: #f0f0f0; color: #999; }
+    .variation-chip {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin: 2px;
+      font-weight: 500;
+    }
+    .variation-chip.selected {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Forms */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      background: #fff;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,55,255,0.1);
+    }
+    textarea { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 13px; resize: vertical; }
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #002bcc; }
+    .btn-secondary { background: #eef0f4; color: var(--text); }
+    .btn-secondary:hover { background: #dfe2e8; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #0a6b42; }
+    .btn-danger { background: var(--error); color: #fff; }
+    .btn-danger:hover { background: #a31b19; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .form-row { margin-bottom: 14px; }
+    .form-row-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .status-msg {
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .status-ok { background: var(--success-bg); color: var(--success); }
+    .status-err { background: var(--error-bg); color: var(--error); }
+
+    /* Sandbox */
+    .sandbox-editor {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .sandbox-toolbar {
+      background: #f8f9fb;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sandbox-toolbar span { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    #sandbox-code {
+      width: 100%;
+      min-height: 200px;
+      border: none;
+      padding: 14px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #fff;
+      resize: vertical;
+    }
+    #sandbox-code:focus { outline: none; }
+    #sandbox-output {
+      background: #1a1f36;
+      color: #e0e4eb;
+      padding: 14px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 12px;
+      min-height: 80px;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-radius: 0 0 6px 6px;
+    }
+
+    /* Collapsible */
+    .collapsible-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .collapsible-toggle:hover { text-decoration: underline; }
+
+    /* Docs */
+    .docs h3 { font-size: 16px; margin: 20px 0 8px; color: var(--text); }
+    .docs h3:first-child { margin-top: 0; }
+    .docs p { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; }
+    .docs code {
+      background: #f0f1f4;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+    }
+    .docs ol, .docs ul { padding-left: 24px; margin-bottom: 12px; }
+    .docs li { font-size: 14px; color: var(--text-muted); margin-bottom: 6px; }
+    .docs .note {
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .docs .warn-note {
+      background: var(--warn-bg);
+      border-left: 3px solid var(--warn);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    /* Launch form */
+    .launch-card {
+      max-width: 480px;
+      margin: 80px auto;
+    }
+    .launch-card .card-body { padding: 24px; }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Utility */
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-16 { margin-bottom: 16px; }
+    .text-muted { color: var(--text-muted); font-size: 13px; }
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Optimizely Test Page</h1>
+  <header>
+    <h1>Optimizely Test Page</h1>
+    <span class="badge">+ Zeotap</span>
+  </header>
 
-  <div id="status"></div>
+  <div class="container">
+    <div id="status"></div>
 
-  <div id="info">
-    <h2>Decision Info (Account / Project / Visitor)</h2>
-    <pre id="decision">Waiting for data...</pre>
-    <h2>Active Experiments</h2>
-    <pre id="experiments">Waiting for data...</pre>
-    <h2>Active Campaigns</h2>
-    <pre id="campaigns">Waiting for data...</pre>
-    <h2>Variation Map</h2>
-    <pre id="variation-map">Waiting for data...</pre>
-    <h2>Active Pages</h2>
-    <pre id="pages">Waiting for data...</pre>
-    <h2>Visitor</h2>
-    <pre id="visitor">Waiting for data...</pre>
-    <h2>Redirect Info</h2>
-    <pre id="redirect">Waiting for data...</pre>
+    <div id="main-app" style="display:none">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-verification">Verification</button>
+        <button class="tab-btn" data-tab="tab-experiments">Experiments</button>
+        <button class="tab-btn" data-tab="tab-data">Raw Data</button>
+        <button class="tab-btn" data-tab="tab-sandbox">Sandbox</button>
+        <button class="tab-btn" data-tab="tab-zeotap">Zeotap</button>
+        <button class="tab-btn" data-tab="tab-docs">Documentation</button>
+      </div>
+
+      <!-- Verification Tab -->
+      <div id="tab-verification" class="tab-content active">
+        <div class="card">
+          <div class="card-header">
+            <h2>Setup Verification</h2>
+            <button class="btn btn-sm btn-secondary" id="run-verification-btn">Re-run Checks</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <ul class="check-list" id="verification-list">
+              <li><span class="check-icon check-wait">...</span> Running checks...</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Visitor ID</h2></div>
+          <div class="card-body"><pre id="visitor-id">Waiting for data...</pre></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2>Active Campaigns</h2></div>
+            <div class="card-body"><pre id="campaigns">Waiting for data...</pre></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Variation Map</h2></div>
+            <div class="card-body"><pre id="variation-map">Waiting for data...</pre></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Zeotap Integration Status</h2></div>
+          <div class="card-body"><pre id="zeotap-status">Waiting for data...</pre></div>
+        </div>
+      </div>
+
+      <!-- Experiments Tab -->
+      <div id="tab-experiments" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2>Experiments Overview</h2>
+            <button class="btn btn-sm btn-secondary" id="refresh-experiments-btn">Refresh</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div id="experiments-table-container">
+              <div class="empty-state">Waiting for Optimizely data...</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Active Experiment States (from state API)</h2></div>
+          <div class="card-body"><pre id="experiments-state">Waiting for data...</pre></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>Decision Info</h2>
+          </div>
+          <div class="card-body"><pre id="decision">Waiting for data...</pre></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2>Active Pages</h2></div>
+            <div class="card-body"><pre id="pages">Waiting for data...</pre></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Redirect Info</h2></div>
+            <div class="card-body"><pre id="redirect">Waiting for data...</pre></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Visitor</h2></div>
+          <div class="card-body"><pre id="visitor">Waiting for data...</pre></div>
+        </div>
+      </div>
+
+      <!-- Raw Data Tab -->
+      <div id="tab-data" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2>Optimizely Data &mdash; <code>get("data")</code></h2>
+            <button class="btn btn-sm btn-secondary" id="refresh-data-btn">Refresh</button>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Full static project configuration. This is a performance-intensive call &mdash; use sparingly in production.</p>
+            <pre id="optimizely-data" style="max-height:600px">Waiting for data...</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sandbox Tab -->
+      <div id="tab-sandbox" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2>JavaScript Sandbox</h2>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Write and execute JavaScript against the Optimizely API. The <code>window.optimizely</code> object is available.</p>
+            <div class="sandbox-editor">
+              <div class="sandbox-toolbar">
+                <span>JavaScript</span>
+                <div class="form-row-inline">
+                  <button class="btn btn-sm btn-secondary" id="sandbox-example-btn">Load Example</button>
+                  <button class="btn btn-sm btn-primary" id="sandbox-run-btn">Run</button>
+                </div>
+              </div>
+              <textarea id="sandbox-code">// Example: Get all experiment names from data
+var data = window.optimizely.get("data");
+var campaigns = data.campaigns || {};
+var results = [];
+
+Object.keys(campaigns).forEach(function(cid) {
+  var c = campaigns[cid];
+  (c.experiments || []).forEach(function(exp) {
+    results.push({
+      campaign: c.name,
+      experiment: exp.name,
+      id: exp.id,
+      variations: (exp.variations || []).map(function(v) { return v.name; })
+    });
+  });
+});
+
+return results;</textarea>
+              <div id="sandbox-output">// Output will appear here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zeotap Tab -->
+      <div id="tab-zeotap" class="tab-content">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2>Fire Event</h2></div>
+            <div class="card-body">
+              <form id="event-form">
+                <div class="form-row">
+                  <label for="event-name">Event Name</label>
+                  <input id="event-name" type="text" placeholder="e.g. AddToCart" required />
+                </div>
+                <div class="form-row">
+                  <label for="event-props">Event Properties (JSON)</label>
+                  <textarea id="event-props" rows="4" placeholder='{"productId": "ABC-123", "quantity": 1}'>{}</textarea>
+                </div>
+                <div class="form-row-inline">
+                  <button type="submit" class="btn btn-primary">Fire Event</button>
+                  <span id="event-status"></span>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>User Identities</h2></div>
+            <div class="card-body">
+              <form id="identity-form">
+                <div class="form-row">
+                  <label for="identity-json">Identities (JSON)</label>
+                  <textarea id="identity-json" rows="4" placeholder='{"email": "[email protected]", "cellno": "1 5551234567"}'>{}</textarea>
+                </div>
+                <div class="form-row-inline">
+                  <button type="button" class="btn btn-success" id="set-identity-btn">Set Identities</button>
+                  <button type="button" class="btn btn-danger" id="unset-identity-btn">Unset Identities</button>
+                  <span id="identity-status"></span>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Page Properties</h2></div>
+          <div class="card-body">
+            <form id="page-props-form">
+              <div class="form-row">
+                <label for="page-props-json">Properties (JSON)</label>
+                <textarea id="page-props-json" rows="3" placeholder='{"page_category": "landing", "campaign": "summer"}'>{}</textarea>
+              </div>
+              <div class="form-row-inline">
+                <button type="submit" class="btn btn-primary">Set Page Properties</button>
+                <span id="page-props-status"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documentation Tab -->
+      <div id="tab-docs" class="tab-content">
+        <div class="card">
+          <div class="card-header"><h2>How to Use This Page</h2></div>
+          <div class="card-body docs">
+            <h3>Getting Started</h3>
+            <ol>
+              <li>Enter your <strong>Optimizely Project ID</strong> in the launch form. You can find this in Optimizely under Settings &gt; Snippet.</li>
+              <li>Optionally provide a custom <strong>Zeotap Write Key</strong> if you have one; otherwise the default key is used.</li>
+              <li>Click <strong>Launch</strong>. The page reloads with the Optimizely snippet injected.</li>
+            </ol>
+
+            <h3>Verification Tab</h3>
+            <p>The verification script automatically checks that your Optimizely setup is working correctly:</p>
+            <ul>
+              <li><strong>Snippet Loaded</strong> &mdash; confirms the Optimizely JS snippet loaded on the page.</li>
+              <li><strong>API Available</strong> &mdash; confirms <code>window.optimizely.get()</code> is callable.</li>
+              <li><strong>Visitor ID</strong> &mdash; confirms a visitor ID was assigned.</li>
+              <li><strong>Data Object</strong> &mdash; confirms <code>get("data")</code> returns project configuration.</li>
+              <li><strong>Experiments Found</strong> &mdash; checks if any experiments are configured in the project.</li>
+              <li><strong>Active Experiments</strong> &mdash; checks if any experiments are currently running for this visitor.</li>
+              <li><strong>Zeotap SDK</strong> &mdash; confirms the Zeotap SDK loaded.</li>
+              <li><strong>Zeotap Integration</strong> &mdash; confirms the visitor ID was sent to Zeotap via <code>setPageProperties</code>.</li>
+            </ul>
+
+            <h3>Experiments Tab</h3>
+            <p>Shows a detailed table of all experiments configured in your project, including:</p>
+            <ul>
+              <li>Experiment name, ID, and parent campaign</li>
+              <li>All variations and which one this visitor is bucketed into (highlighted)</li>
+              <li>Audience targeting information</li>
+              <li>Traffic allocation (weight distribution)</li>
+            </ul>
+
+            <h3>Raw Data Tab</h3>
+            <p>Displays the full JSON response from <code>window.optimizely.get("data")</code>. This includes audiences, events, pages, campaigns, experiments, and all project configuration.</p>
+            <div class="warn-note">
+              <strong>Performance note:</strong> <code>get("data")</code> is a performance-intensive call. Avoid calling it repeatedly in production code. Cache the result if you need multiple fields.
+            </div>
+
+            <h3>Sandbox Tab</h3>
+            <p>A JavaScript editor where you can write and execute code against the live Optimizely API. Use this to:</p>
+            <ul>
+              <li>Test custom experiment logic</li>
+              <li>Query specific data fields</li>
+              <li>Prototype changes before implementing them</li>
+              <li>Debug audience targeting or variation assignment</li>
+            </ul>
+            <p>Your code is wrapped in a function. Use <code>return</code> to output a result. The <code>window.optimizely</code> object and all page APIs are available.</p>
+
+            <h3>Zeotap Tab</h3>
+            <p>Interact with the Zeotap SDK directly:</p>
+            <ul>
+              <li><strong>Fire Event</strong> &mdash; calls <code>zeotap.setEventProperties(name, props)</code></li>
+              <li><strong>User Identities</strong> &mdash; calls <code>zeotap.setUserIdentities()</code> or <code>zeotap.unsetUserIdentities()</code></li>
+              <li><strong>Page Properties</strong> &mdash; calls <code>zeotap.setPageProperties(props)</code></li>
+            </ul>
+            <div class="note">
+              <strong>Automatic integration:</strong> On page load, the Optimizely visitor ID is automatically sent to Zeotap as a page property (<code>optimizely_visitor_id</code>) using <code>window.optimizely.get("visitor_id")</code>.
+            </div>
+
+            <h3>URL Parameters</h3>
+            <ul>
+              <li><code>?project_id=12345678</code> &mdash; (required) Your Optimizely project ID</li>
+              <li><code>&amp;write_key=your-key</code> &mdash; (optional) Custom Zeotap write key</li>
+            </ul>
+
+            <h3>Optimizely API Reference</h3>
+            <p>Key API calls available via <code>window.optimizely</code>:</p>
+            <ul>
+              <li><code>get("data")</code> &mdash; Static project config (experiments, campaigns, audiences, events, pages)</li>
+              <li><code>get("state")</code> &mdash; Dynamic visitor state (active experiments, variation assignments)</li>
+              <li><code>get("visitor_id")</code> &mdash; Current visitor's unique identifier</li>
+              <li><code>get("visitor")</code> &mdash; Visitor profile and attributes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <hr>
-  <h2>Zeotap: Fire Event</h2>
-  <form id="event-form">
-    <div>
-      <label for="event-name">Event Name:</label>
-      <input id="event-name" type="text" placeholder="e.g. AddToCart" required />
-    </div>
-    <div style="margin-top:8px">
-      <label for="event-props">Event Properties (JSON):</label><br>
-      <textarea id="event-props" rows="4" cols="50" placeholder='{"productId": "ABC-123", "quantity": 1}'>{}</textarea>
-    </div>
-    <button type="submit" style="margin-top:8px">Fire Event</button>
-    <span id="event-status"></span>
-  </form>
-
-  <hr>
-  <h2>Zeotap: User Identities</h2>
-  <form id="identity-form">
-    <div>
-      <label for="identity-json">Identities (JSON):</label><br>
-      <textarea id="identity-json" rows="4" cols="50" placeholder='{"email": "[email protected]", "cellno": "1 5551234567"}'>{}</textarea>
-    </div>
-    <div style="margin-top:8px">
-      <button type="button" id="set-identity-btn">Set Identities</button>
-      <button type="button" id="unset-identity-btn">Unset Identities</button>
-      <span id="identity-status"></span>
-    </div>
-  </form>
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+      });
+    });
+  </script>
 
   <script>
     // Zeotap Event form
@@ -93,9 +685,11 @@
       try {
         var props = propsStr ? JSON.parse(propsStr) : {};
         window.zeotap.setEventProperties(name, props);
-        statusSpan.textContent = ' Fired "' + name + '"';
+        statusSpan.className = 'status-msg status-ok';
+        statusSpan.textContent = 'Fired "' + name + '"';
       } catch (err) {
-        statusSpan.textContent = ' Error: ' + err.message;
+        statusSpan.className = 'status-msg status-err';
+        statusSpan.textContent = 'Error: ' + err.message;
       }
     });
 
@@ -106,22 +700,71 @@
       try {
         var identities = JSON.parse(jsonStr);
         window.zeotap.setUserIdentities(identities);
-        statusSpan.textContent = ' Identities set';
+        statusSpan.className = 'status-msg status-ok';
+        statusSpan.textContent = 'Identities set';
       } catch (err) {
-        statusSpan.textContent = ' Error: ' + err.message;
+        statusSpan.className = 'status-msg status-err';
+        statusSpan.textContent = 'Error: ' + err.message;
       }
     });
 
     document.getElementById('unset-identity-btn').addEventListener('click', function() {
-      var jsonStr = document.getElementById('identity-json').value.trim();
       var statusSpan = document.getElementById('identity-status');
       try {
-        var identities = JSON.parse(jsonStr);
         window.zeotap.unsetUserIdentities();
-        statusSpan.textContent = ' Identities unset';
+        statusSpan.className = 'status-msg status-ok';
+        statusSpan.textContent = 'Identities unset';
       } catch (err) {
-        statusSpan.textContent = ' Error: ' + err.message;
+        statusSpan.className = 'status-msg status-err';
+        statusSpan.textContent = 'Error: ' + err.message;
       }
+    });
+
+    // Zeotap Page Properties form
+    document.getElementById('page-props-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var jsonStr = document.getElementById('page-props-json').value.trim();
+      var statusSpan = document.getElementById('page-props-status');
+      try {
+        var props = JSON.parse(jsonStr);
+        window.zeotap.setPageProperties(props);
+        statusSpan.className = 'status-msg status-ok';
+        statusSpan.textContent = 'Page properties set';
+      } catch (err) {
+        statusSpan.className = 'status-msg status-err';
+        statusSpan.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+
+  <script>
+    // Sandbox
+    document.getElementById('sandbox-run-btn').addEventListener('click', function() {
+      var code = document.getElementById('sandbox-code').value;
+      var outputEl = document.getElementById('sandbox-output');
+      try {
+        var fn = new Function(code);
+        var result = fn();
+        if (result !== undefined) {
+          outputEl.textContent = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
+        } else {
+          outputEl.textContent = '// (no return value)';
+        }
+      } catch (err) {
+        outputEl.textContent = 'Error: ' + err.message + '\n' + (err.stack || '');
+      }
+    });
+
+    var sandboxExamples = [
+      '// Get all experiment names and their variations\nvar data = window.optimizely.get("data");\nvar campaigns = data.campaigns || {};\nvar results = [];\n\nObject.keys(campaigns).forEach(function(cid) {\n  var c = campaigns[cid];\n  (c.experiments || []).forEach(function(exp) {\n    results.push({\n      campaign: c.name,\n      experiment: exp.name,\n      id: exp.id,\n      variations: (exp.variations || []).map(function(v) { return v.name; })\n    });\n  });\n});\n\nreturn results;',
+      '// Check which variation the current visitor sees\nvar state = window.optimizely.get("state");\nvar expStates = state.getExperimentStates();\nvar active = {};\n\nObject.keys(expStates).forEach(function(eid) {\n  var e = expStates[eid];\n  if (e.isActive) {\n    active[eid] = {\n      experimentName: e.experimentName,\n      variationName: e.variation && e.variation.name,\n      variationId: e.variation && e.variation.id\n    };\n  }\n});\n\nreturn active;',
+      '// List all audiences and their conditions\nvar data = window.optimizely.get("data");\nvar audiences = data.audiences || {};\nreturn Object.keys(audiences).map(function(id) {\n  return { id: id, name: audiences[id].name, conditions: audiences[id].conditions };\n});',
+      '// List all tracked events\nvar data = window.optimizely.get("data");\nvar events = data.events || {};\nreturn Object.keys(events).map(function(id) {\n  var e = events[id];\n  return { id: id, name: e.name, apiName: e.apiName, type: e.eventType };\n});'
+    ];
+    var exampleIdx = 0;
+    document.getElementById('sandbox-example-btn').addEventListener('click', function() {
+      document.getElementById('sandbox-code').value = sandboxExamples[exampleIdx % sandboxExamples.length];
+      exampleIdx++;
     });
   </script>
 
@@ -132,13 +775,22 @@
 
     if (!projectId) {
       statusEl.innerHTML =
-        '<form id="launch-form">' +
-          '<div><label for="pid">Project ID:</label> ' +
-          '<input id="pid" type="text" placeholder="e.g. 12345678" required /></div>' +
-          '<div style="margin-top:8px"><label for="wk">Zeotap Write Key:</label> ' +
-          '<input id="wk" type="text" placeholder="18116ee9-c6e4-4f8a-9345-2efe472deccf" value="18116ee9-c6e4-4f8a-9345-2efe472deccf" /></div>' +
-          '<button type="submit" style="margin-top:8px">Launch</button>' +
-        '</form>';
+        '<div class="launch-card card">' +
+          '<div class="card-header"><h2>Connect to Optimizely</h2></div>' +
+          '<div class="card-body">' +
+            '<form id="launch-form">' +
+              '<div class="form-row">' +
+                '<label for="pid">Project ID</label>' +
+                '<input id="pid" type="text" placeholder="e.g. 12345678" required />' +
+              '</div>' +
+              '<div class="form-row">' +
+                '<label for="wk">Zeotap Write Key</label>' +
+                '<input id="wk" type="text" placeholder="18116ee9-c6e4-4f8a-9345-2efe472deccf" value="18116ee9-c6e4-4f8a-9345-2efe472deccf" />' +
+              '</div>' +
+              '<button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Launch</button>' +
+            '</form>' +
+          '</div>' +
+        '</div>';
       document.getElementById('launch-form').addEventListener('submit', function(e) {
         e.preventDefault();
         var pid = document.getElementById('pid').value.trim();
@@ -152,30 +804,241 @@
         }
       });
     } else {
-      statusEl.innerHTML = '<p>Optimizely project: <strong>' + projectId + '</strong> <button id="refresh-btn">Refresh</button></p>';
+      document.getElementById('main-app').style.display = 'block';
+      statusEl.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
+          '<div><span class="text-muted">Project</span> <strong>' + projectId + '</strong></div>' +
+          '<div class="form-row-inline"><button class="btn btn-sm btn-primary" id="refresh-btn">Refresh All</button>' +
+          '<button class="btn btn-sm btn-secondary" onclick="window.location.search=\'\'">Disconnect</button></div>' +
+        '</div>';
 
+      // -- Verification script --
+      function runVerification() {
+        var checks = [];
+        var opt = window.optimizely;
+        var hasGet = opt && typeof opt.get === 'function';
+
+        // 1. Snippet loaded
+        checks.push({
+          name: 'Optimizely snippet loaded',
+          pass: !!opt,
+          detail: opt ? 'window.optimizely exists' : 'window.optimizely not found'
+        });
+
+        // 2. API available
+        checks.push({
+          name: 'API available (get method)',
+          pass: hasGet,
+          detail: hasGet ? 'get() is callable' : 'get() not available — snippet may still be loading'
+        });
+
+        var visitorId = null;
+        var data = null;
+        var state = null;
+
+        if (hasGet) {
+          visitorId = opt.get('visitor_id');
+          data = opt.get('data');
+          state = opt.get('state');
+        }
+
+        // 3. Visitor ID
+        checks.push({
+          name: 'Visitor ID assigned',
+          pass: !!visitorId,
+          detail: visitorId ? 'ID: ' + visitorId : 'No visitor ID yet'
+        });
+
+        // 4. Data object
+        checks.push({
+          name: 'Data object returned',
+          pass: !!data,
+          detail: data ? 'Contains ' + Object.keys(data).length + ' top-level keys' : 'get("data") returned empty'
+        });
+
+        // 5. Experiments found in data
+        var expCount = 0;
+        if (data && data.campaigns) {
+          Object.keys(data.campaigns).forEach(function(cid) {
+            expCount += (data.campaigns[cid].experiments || []).length;
+          });
+        }
+        checks.push({
+          name: 'Experiments found in project',
+          pass: expCount > 0,
+          warn: expCount === 0,
+          detail: expCount > 0 ? expCount + ' experiment(s) configured' : 'No experiments found in project data'
+        });
+
+        // 6. Active experiments
+        var activeCount = 0;
+        if (state) {
+          var expStates = state.getExperimentStates();
+          Object.keys(expStates).forEach(function(eid) {
+            if (expStates[eid].isActive) activeCount++;
+          });
+        }
+        checks.push({
+          name: 'Active experiments for this visitor',
+          pass: activeCount > 0,
+          warn: activeCount === 0 && expCount > 0,
+          detail: activeCount > 0 ? activeCount + ' active experiment(s)' : 'No active experiments for this visitor'
+        });
+
+        // 7. Zeotap SDK
+        var hasZeotap = !!window.zeotap;
+        checks.push({
+          name: 'Zeotap SDK loaded',
+          pass: hasZeotap,
+          detail: hasZeotap ? 'window.zeotap exists' : 'Zeotap SDK not found'
+        });
+
+        // 8. Zeotap integration
+        var zeotapIntegrated = hasZeotap && !!visitorId;
+        checks.push({
+          name: 'Zeotap integration (visitor ID sent)',
+          pass: zeotapIntegrated,
+          warn: !zeotapIntegrated && hasZeotap,
+          detail: zeotapIntegrated ? 'setPageProperties called with optimizely_visitor_id' : 'Visitor ID not yet sent to Zeotap'
+        });
+
+        // Render
+        var list = document.getElementById('verification-list');
+        list.innerHTML = '';
+        checks.forEach(function(c) {
+          var cls = c.pass ? 'check-pass' : (c.warn ? 'check-warn' : 'check-fail');
+          var icon = c.pass ? '\u2713' : (c.warn ? '!' : '\u2717');
+          var li = document.createElement('li');
+          li.innerHTML = '<span class="check-icon ' + cls + '">' + icon + '</span>' +
+            '<div><strong>' + c.name + '</strong><br><span class="text-muted">' + c.detail + '</span></div>';
+          list.appendChild(li);
+        });
+      }
+
+      // -- Build experiments table from get("data") --
+      function buildExperimentsTable() {
+        var opt = window.optimizely;
+        if (!opt || !opt.get) return;
+
+        var data = opt.get('data');
+        var state = opt.get('state');
+        var variationMap = state ? state.getVariationMap() : {};
+        var expStates = state ? state.getExperimentStates() : {};
+
+        if (!data || !data.campaigns) {
+          document.getElementById('experiments-table-container').innerHTML = '<div class="empty-state">No campaign/experiment data found.</div>';
+          return;
+        }
+
+        var rows = [];
+        Object.keys(data.campaigns).forEach(function(cid) {
+          var campaign = data.campaigns[cid];
+          (campaign.experiments || []).forEach(function(exp) {
+            var es = expStates[exp.id] || {};
+            var selectedVarId = variationMap[exp.id] ? variationMap[exp.id].id : null;
+            rows.push({
+              campaignName: campaign.name || cid,
+              campaignId: cid,
+              expName: exp.name || exp.id,
+              expId: exp.id,
+              isActive: !!es.isActive,
+              audienceName: exp.audienceName || 'Everyone',
+              variations: (exp.variations || []).map(function(v) {
+                return { id: v.id, name: v.name || v.id, selected: v.id === selectedVarId };
+              }),
+              weights: exp.weightDistributions || []
+            });
+          });
+        });
+
+        if (rows.length === 0) {
+          document.getElementById('experiments-table-container').innerHTML = '<div class="empty-state">No experiments found in project.</div>';
+          return;
+        }
+
+        var html = '<table class="exp-table"><thead><tr>' +
+          '<th>Experiment</th><th>ID</th><th>Campaign</th><th>Status</th><th>Audience</th><th>Variations</th><th>Traffic</th>' +
+          '</tr></thead><tbody>';
+        rows.forEach(function(r) {
+          var statusCls = r.isActive ? 'status-active' : 'status-inactive';
+          var statusText = r.isActive ? 'Active' : 'Inactive';
+          var varsHtml = r.variations.map(function(v) {
+            var cls = v.selected ? 'variation-chip selected' : 'variation-chip';
+            return '<span class="' + cls + '">' + v.name + '</span>';
+          }).join(' ');
+          var weightsHtml = r.weights.length > 0 ? r.weights.map(function(w, i) {
+            var start = i === 0 ? 0 : r.weights[i-1].endOfRange;
+            var pct = ((w.endOfRange - start) / 100).toFixed(1) + '%';
+            return pct;
+          }).join(' / ') : '-';
+          html += '<tr>' +
+            '<td><strong>' + r.expName + '</strong></td>' +
+            '<td class="text-muted">' + r.expId + '</td>' +
+            '<td>' + r.campaignName + '</td>' +
+            '<td><span class="status-badge ' + statusCls + '">' + statusText + '</span></td>' +
+            '<td>' + r.audienceName + '</td>' +
+            '<td>' + varsHtml + '</td>' +
+            '<td class="text-muted">' + weightsHtml + '</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table>';
+        document.getElementById('experiments-table-container').innerHTML = html;
+      }
+
+      // -- Refresh all data sections --
       function refreshOptimizelyData() {
-        var state = window.optimizely && window.optimizely.get && window.optimizely.get('state');
-        if (!state) return;
+        var opt = window.optimizely;
+        if (!opt || !opt.get) return;
 
-        var experiments  = state.getExperimentStates();
-        var campaigns    = state.getCampaignStates();
-        var decision     = state.getDecisionObject();
-        var variationMap = state.getVariationMap();
-        var pages        = state.getPageStates();
-        var visitor      = state.getVisitorId ? state.getVisitorId() : window.optimizely.get('visitor');
-        var redirect     = state.getRedirectInfo();
+        var visitorId = opt.get('visitor_id');
+        document.getElementById('visitor-id').textContent = JSON.stringify(visitorId, null, 2);
 
-        document.getElementById('decision').textContent      = JSON.stringify(decision, null, 2);
-        document.getElementById('experiments').textContent    = JSON.stringify(experiments, null, 2);
-        document.getElementById('campaigns').textContent      = JSON.stringify(campaigns, null, 2);
-        document.getElementById('variation-map').textContent  = JSON.stringify(variationMap, null, 2);
-        document.getElementById('pages').textContent          = JSON.stringify(pages, null, 2);
-        document.getElementById('visitor').textContent        = JSON.stringify(visitor, null, 2);
-        document.getElementById('redirect').textContent       = JSON.stringify(redirect, null, 2);
+        var data = opt.get('data');
+        document.getElementById('optimizely-data').textContent = JSON.stringify(data, null, 2);
+
+        var state = opt.get('state');
+        if (state) {
+          var experiments  = state.getExperimentStates();
+          var campaigns    = state.getCampaignStates();
+          var decision     = state.getDecisionObject();
+          var variationMap = state.getVariationMap();
+          var pages        = state.getPageStates();
+          var visitor      = state.getVisitorId ? state.getVisitorId() : opt.get('visitor');
+          var redirect     = state.getRedirectInfo();
+
+          document.getElementById('experiments-state').textContent = JSON.stringify(experiments, null, 2);
+          document.getElementById('decision').textContent          = JSON.stringify(decision, null, 2);
+          document.getElementById('campaigns').textContent         = JSON.stringify(campaigns, null, 2);
+          document.getElementById('variation-map').textContent     = JSON.stringify(variationMap, null, 2);
+          document.getElementById('pages').textContent             = JSON.stringify(pages, null, 2);
+          document.getElementById('visitor').textContent           = JSON.stringify(visitor, null, 2);
+          document.getElementById('redirect').textContent          = JSON.stringify(redirect, null, 2);
+        }
+
+        var zeotapInfo = { optimizely_visitor_id: visitorId || 'not available' };
+        if (visitorId) {
+          window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId });
+          zeotapInfo.status = 'setPageProperties called with visitor_id';
+        } else {
+          zeotapInfo.status = 'visitor_id not yet available';
+        }
+        document.getElementById('zeotap-status').textContent = JSON.stringify(zeotapInfo, null, 2);
+
+        buildExperimentsTable();
+        runVerification();
       }
 
       document.getElementById('refresh-btn').addEventListener('click', refreshOptimizelyData);
+      document.getElementById('run-verification-btn').addEventListener('click', runVerification);
+      document.getElementById('refresh-experiments-btn').addEventListener('click', function() {
+        buildExperimentsTable();
+      });
+      document.getElementById('refresh-data-btn').addEventListener('click', function() {
+        var opt = window.optimizely;
+        if (opt && opt.get) {
+          document.getElementById('optimizely-data').textContent = JSON.stringify(opt.get('data'), null, 2);
+        }
+      });
 
       window.optimizely = window.optimizely || [];
       window.optimizely.push({
@@ -183,6 +1046,10 @@
         filter: { type: "lifecycle", name: "activated" },
         handler: refreshOptimizelyData
       });
+
+      // Run verification after a delay to let the snippet load
+      setTimeout(runVerification, 2000);
+      setTimeout(refreshOptimizelyData, 2500);
     }
   </script>
 </body>

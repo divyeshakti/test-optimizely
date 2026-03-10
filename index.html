@@ -25,8 +25,8 @@
     (function poll() {
       var visitorId = window["optimizely"] && window["optimizely"].get && window["optimizely"].get("visitor_id");
       if (visitorId) {
-        window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId });
-        console.log("[Zeotap] setPageProperties called with optimizely_visitor_id:", visitorId);
+        window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId.randomId });
+        console.log("[Zeotap] setPageProperties called with optimizely_visitor_id:", visitorId.randomId);
       } else {
         setTimeout(poll, 200);
       }
@@ -1039,9 +1039,9 @@ return results;</textarea>
           document.getElementById('redirect').textContent          = JSON.stringify(redirect, null, 2);
         }
 
-        var zeotapInfo = { optimizely_visitor_id: visitorId || 'not available' };
+        var zeotapInfo = { optimizely_visitor_id: visitorId ? visitorId.randomId : 'not available' };
         if (visitorId) {
-          window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId });
+          window.zeotap.setPageProperties({ optimizely_visitor_id: visitorId.randomId });
           zeotapInfo.status = 'setPageProperties called with visitor_id';
         } else {
           zeotapInfo.status = 'visitor_id not yet available';

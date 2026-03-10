@@ -398,6 +398,7 @@
       color: var(--text-muted);
       font-size: 14px;
     }
+
   </style>
 </head>
 <body>
@@ -420,6 +421,7 @@
         <button class="tab-btn" data-tab="tab-experiments">Experiments</button>
         <button class="tab-btn" data-tab="tab-data">Raw Data</button>
         <button class="tab-btn" data-tab="tab-sandbox">Sandbox</button>
+        <button class="tab-btn" data-tab="tab-audience">Audience Polling</button>
         <button class="tab-btn" data-tab="tab-zeotap">Zeotap</button>
         <button class="tab-btn" data-tab="tab-docs">Documentation</button>
       </div>
@@ -546,6 +548,74 @@ Object.keys(campaigns).forEach(function(cid) {
 return results;</textarea>
               <div id="sandbox-output">// Output will appear here</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audience Polling Tab -->
+      <div id="tab-audience" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2>ODP Audience Check</h2>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Generate a <code>curl</code> command to query the ODP GraphQL API and check if the current visitor belongs to a real-time audience segment. Copy and run it in your terminal.</p>
+            <div class="grid-2">
+              <div class="form-row">
+                <label for="odp-api-key">ODP Private API Key</label>
+                <input id="odp-api-key" type="text" placeholder="Your ODP private API key (x-api-key)" />
+              </div>
+              <div class="form-row">
+                <label for="odp-endpoint">ODP GraphQL Endpoint</label>
+                <input id="odp-endpoint" type="text" list="odp-endpoints" value="https://api.zaius.com/v3/graphql" />
+                <datalist id="odp-endpoints">
+                  <option value="https://api.zaius.com/v3/graphql">US</option>
+                  <option value="https://api.eu1.odp.optimizely.com/v3/graphql">Europe</option>
+                  <option value="https://api.au1.odp.optimizely.com/v3/graphql">APAC</option>
+                </datalist>
+                <span class="text-muted mt-8" style="display:block">Select a preset or type a custom endpoint URL.</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="odp-audience-names">Audience Segment IDs (comma-separated)</label>
+              <input id="odp-audience-names" type="text" placeholder='e.g. has_email, high_value_customers' />
+            </div>
+            <div class="form-row">
+              <label for="odp-vuid">Visitor ID (web_user_id)</label>
+              <input id="odp-vuid" type="text" placeholder="Auto-populated from Optimizely (e.g. oeu1773145893729r0.599...)" />
+              <span class="text-muted mt-8" style="display:block">Auto-filled from Optimizely visitor ID. Override if needed.</span>
+            </div>
+            <div class="form-row-inline mt-16">
+              <button class="btn btn-primary" id="generate-curl-btn">Generate curl</button>
+              <span id="curl-status"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="curl-output-card" style="display:none">
+          <div class="card-header">
+            <h2>curl Command (pretty-printed)</h2>
+            <button class="btn btn-sm btn-secondary" id="copy-curl-pretty-btn">Copy</button>
+          </div>
+          <div class="card-body">
+            <pre id="curl-output" style="background:#1a1f36;color:#e0e4eb;padding:16px;border:none;border-radius:6px;font-size:13px;line-height:1.6;user-select:all"></pre>
+          </div>
+        </div>
+        <div class="card" id="curl-plain-card" style="display:none">
+          <div class="card-header">
+            <h2>curl Command (plain)</h2>
+            <button class="btn btn-sm btn-secondary" id="copy-curl-plain-btn">Copy</button>
+          </div>
+          <div class="card-body">
+            <pre id="curl-plain" style="background:#1a1f36;color:#e0e4eb;padding:16px;border:none;border-radius:6px;font-size:13px;line-height:1.6;user-select:all"></pre>
+          </div>
+        </div>
+        <div class="card" id="curl-watch-card" style="display:none">
+          <div class="card-header">
+            <h2>watch Command (poll every N seconds)</h2>
+            <button class="btn btn-sm btn-secondary" id="copy-curl-watch-btn">Copy</button>
+          </div>
+          <div class="card-body">
+            <pre id="curl-watch" style="background:#1a1f36;color:#e0e4eb;padding:12px;border:none;border-radius:6px;font-size:12px;user-select:all"></pre>
           </div>
         </div>
       </div>
@@ -1074,6 +1144,83 @@ return results;</textarea>
       // Run verification after a delay to let the snippet load
       setTimeout(runVerification, 2000);
       setTimeout(refreshOptimizelyData, 2500);
+
+      // -- Audience Check (curl generator) --
+      (function() {
+        var vuidField = document.getElementById('odp-vuid');
+
+        function populateVuid() {
+          var opt = window.optimizely;
+          if (opt && typeof opt.get === 'function') {
+            var vid = opt.get('visitor_id');
+            if (vid && vid.randomId && !vuidField.dataset.userEdited) {
+              vuidField.value = vid.randomId;
+            }
+          }
+        }
+        vuidField.addEventListener('input', function() { vuidField.dataset.userEdited = '1'; });
+        setTimeout(populateVuid, 3000);
+
+        function setCurlStatus(msg, isError) {
+          var el = document.getElementById('curl-status');
+          el.className = 'status-msg ' + (isError ? 'status-err' : 'status-ok');
+          el.textContent = msg;
+        }
+
+        function escapeShell(s) {
+          return s.replace(/'/g, "'\\''");
+        }
+
+        document.getElementById('generate-curl-btn').addEventListener('click', function() {
+          populateVuid();
+
+          var apiKey = document.getElementById('odp-api-key').value.trim();
+          var endpoint = document.getElementById('odp-endpoint').value.trim();
+          var audienceStr = document.getElementById('odp-audience-names').value.trim();
+          var vuid = vuidField.value.trim();
+
+          if (!apiKey) { setCurlStatus('ODP API key is required', true); return; }
+          if (!endpoint) { setCurlStatus('Endpoint URL is required', true); return; }
+          if (!audienceStr) { setCurlStatus('At least one audience ID is required', true); return; }
+          if (!vuid) { setCurlStatus('Visitor ID (vuid) is required', true); return; }
+
+          var audiences = audienceStr.split(',').map(function(s) { return s.trim().replace(/^["']|["']$/g, ''); }).filter(Boolean);
+
+          var subsetStr = audiences.length === 1 ? '"' + audiences[0] + '"' : '[' + audiences.map(function(a) { return '"' + a + '"'; }).join(', ') + ']';
+          var graphqlQuery = '{ customer(web_user_id: "' + vuid.replace(/"/g, '\\"') + '") { audiences(subset: ' + subsetStr + ') { edges { node { name state description is_ready } } } } }';
+          var bodyObj = {
+            query: graphqlQuery
+          };
+          var bodyJson = JSON.stringify(bodyObj);
+
+          var curl = "curl -s -X POST '" + escapeShell(endpoint) + "' \\\n" +
+            "  -H 'Content-Type: application/json' \\\n" +
+            "  -H 'x-api-key: " + escapeShell(apiKey) + "' \\\n" +
+            "  -d '" + escapeShell(bodyJson) + "'";
+
+          var curlPretty = curl + ' | python3 -m json.tool';
+
+          document.getElementById('curl-output').textContent = curlPretty;
+          document.getElementById('curl-plain').textContent = curl;
+          document.getElementById('curl-watch').textContent = 'watch -n 10 "' + curl.replace(/\\\n\s*/g, '').replace(/"/g, '\\"') + '"';
+          document.getElementById('curl-output-card').style.display = 'block';
+          document.getElementById('curl-plain-card').style.display = 'block';
+          document.getElementById('curl-watch-card').style.display = 'block';
+          setCurlStatus('Generated', false);
+        });
+
+        function copyFromElement(elId) {
+          var text = document.getElementById(elId).textContent;
+          navigator.clipboard.writeText(text).then(function() {
+            setCurlStatus('Copied!', false);
+          }, function() {
+            setCurlStatus('Copy failed — select and copy manually', true);
+          });
+        }
+        document.getElementById('copy-curl-pretty-btn').addEventListener('click', function() { copyFromElement('curl-output'); });
+        document.getElementById('copy-curl-plain-btn').addEventListener('click', function() { copyFromElement('curl-plain'); });
+        document.getElementById('copy-curl-watch-btn').addEventListener('click', function() { copyFromElement('curl-watch'); });
+      })();
     }
   </script>
 </body>

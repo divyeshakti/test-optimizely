@@ -357,6 +357,25 @@
       color: var(--text);
     }
 
+    /* Announcement bar */
+    .announcement-bar {
+      background: #f0f4ff;
+      border-bottom: 1px solid #c7d4f7;
+      color: #2d3356;
+      padding: 10px 24px;
+      text-align: center;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .announcement-bar a {
+      color: #3b5bdb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
     /* Hero banner */
     .hero-banner {
       background: linear-gradient(135deg, #1a1f36 0%, #2d3356 100%);
@@ -374,6 +393,54 @@
       color: rgba(255,255,255,0.7);
       max-width: 600px;
       margin: 0 auto;
+    }
+
+    /* Inline promo banner */
+    .promo-banner {
+      background: linear-gradient(90deg, #fff8e1 0%, #fff3cd 100%);
+      border: 1px solid #f5c842;
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .promo-banner .promo-icon { font-size: 28px; flex-shrink: 0; }
+    .promo-banner .promo-text { flex: 1; }
+    .promo-banner .promo-text strong { display: block; font-size: 15px; color: #7a5200; margin-bottom: 2px; }
+    .promo-banner .promo-text span { font-size: 13px; color: #9a6f00; }
+    .promo-banner .promo-cta {
+      background: #f5c842;
+      color: #7a5200;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Footer CTA strip */
+    .cta-strip {
+      background: linear-gradient(135deg, #0d7377 0%, #14a085 100%);
+      color: #fff;
+      padding: 24px 32px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .cta-strip h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .cta-strip p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 14px; }
+    .cta-strip .cta-btn {
+      background: #fff;
+      color: #0d7377;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     /* Launch form */
@@ -402,6 +469,12 @@
   </style>
 </head>
 <body>
+  <!-- Announcement bar (experiment target) -->
+  <div id="announcement-bar" class="announcement-bar">
+    <span>📣 No announcement experiment running —</span>
+    <span>target this with selector <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:4px">#announcement-bar</code></span>
+  </div>
+
   <header>
     <h1>Optimizely Test Page</h1>
     <span class="badge">+ Zeotap</span>
@@ -416,6 +489,16 @@
     <div id="status"></div>
 
     <div id="main-app" style="display:none">
+
+      <!-- Promo banner (experiment target) -->
+      <div id="promo-banner" class="promo-banner">
+        <div class="promo-icon">🎯</div>
+        <div class="promo-text">
+          <strong>No promo experiment running</strong>
+          <span>Target this inline banner with selector <code style="background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:4px">#promo-banner</code></span>
+        </div>
+        <button class="promo-cta">Learn More</button>
+      </div>
 
       <!-- Audience Readiness Panel -->
       <div id="audience-panel" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:24px;overflow:hidden">
@@ -829,6 +912,13 @@ return results;</textarea>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Footer CTA strip (experiment target) -->
+  <div id="cta-strip" class="cta-strip">
+    <h3>No CTA experiment running</h3>
+    <p>Target this footer strip with selector <code style="background:rgba(255,255,255,0.15);padding:2px 6px;border-radius:4px">#cta-strip</code></p>
+    <button class="cta-btn">Get Started</button>
   </div>
 
   <script>

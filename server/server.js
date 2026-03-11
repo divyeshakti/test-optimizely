@@ -2,16 +2,40 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const ODP_ENDPOINT = 'https://api.eu1.odp.optimizely.com/v3/graphql';
+const RESULTS_DIR  = path.join(__dirname, 'results');
+const INDEX_FILE   = path.join(__dirname, 'results-index.json');
 
 app.use(cors());
 app.use(express.json());
+app.use('/results', express.static(RESULTS_DIR));
 
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.get('/api/results-index', (_req, res) => {
+  if (!fs.existsSync(INDEX_FILE)) return res.json([]);
+  try {
+    res.json(JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8')));
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to read index' });
+  }
+});
+
+app.get('/api/results/:filename', (req, res) => {
+  const file = path.join(RESULTS_DIR, path.basename(req.params.filename));
+  if (!fs.existsSync(file)) return res.status(404).json({ error: 'Not found' });
+  try {
+    res.json(JSON.parse(fs.readFileSync(file, 'utf8')));
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to read file' });
+  }
 });
 
 app.post('/api/audience-check', async (req, res) => {

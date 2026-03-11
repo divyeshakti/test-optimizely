@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zeotap → ODP Latency Test</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --border: #e1e5eb;
+      --text: #1a1f36;
+      --text-muted: #5a6072;
+      --primary: #0037ff;
+      --primary-light: #e8eeff;
+      --success: #0d8050;
+      --success-bg: #e6f4ed;
+      --warn: #bf7600;
+      --warn-bg: #fef3e0;
+      --error: #c5221f;
+      --error-bg: #fce8e6;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --mono: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--text);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header h1 { font-size: 18px; font-weight: 600; }
+    .badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h2 { font-size: 14px; font-weight: 600; }
+    .card-body { padding: 18px 20px; }
+
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%; padding: 7px 11px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit; background: #fff;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,55,255,0.1); }
+    textarea { font-family: var(--mono); font-size: 12px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .form-row { margin-bottom: 14px; }
+
+    .btn {
+      padding: 8px 18px; border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #002bcc; }
+    .btn-primary:disabled { background: #a0b0ff; cursor: not-allowed; }
+    .btn-secondary { background: #eef0f4; color: var(--text); }
+    .btn-secondary:hover { background: #dfe2e8; }
+    .btn-sm { padding: 4px 11px; font-size: 12px; }
+
+    /* Command box */
+    .cmd-box {
+      background: #1e2233;
+      color: #e2e8f0;
+      border-radius: 7px;
+      padding: 14px 18px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(255,255,255,0.12); color: #e2e8f0;
+      border: none; border-radius: 5px; padding: 3px 9px;
+      font-size: 11px; cursor: pointer;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* Status */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 11px; border-radius: 12px; font-size: 12px; font-weight: 600;
+    }
+    .pill-running  { background: var(--warn-bg);    color: var(--warn); }
+    .pill-resolved { background: var(--success-bg); color: var(--success); }
+    .pill-timeout  { background: var(--error-bg);   color: var(--error); }
+    .pill-error    { background: var(--error-bg);   color: var(--error); }
+    .pill-firing   { background: #f0f4ff; color: var(--primary); }
+    .pill-polling  { background: var(--warn-bg);    color: var(--warn); }
+    .pill-idle     { background: #f0f0f0; color: #999; }
+
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; display: inline-block;
+    }
+    .dot-pulse { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Visitor table */
+    .visitor-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .visitor-table th {
+      text-align: left; padding: 9px 14px;
+      background: #f8f9fb; border-bottom: 2px solid var(--border);
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    .visitor-table td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .visitor-table tr:last-child td { border-bottom: none; }
+    .visitor-table tr:hover td { background: #f8f9fb; }
+    .vc-id {
+      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+    }
+    .vc-latency {
+      font-size: 15px; font-weight: 700; color: var(--success); white-space: nowrap;
+    }
+    .vc-latency-pending { font-size: 13px; color: var(--text-muted); }
+    .vc-latency-timeout { font-size: 13px; color: var(--error); }
+    .poll-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      margin: 1px; vertical-align: middle;
+    }
+    .poll-pending  { background: #ddd; }
+    .poll-miss     { background: #f0b429; }
+    .poll-hit      { background: var(--success); }
+    .poll-error    { background: var(--error); }
+
+    /* Summary bar */
+    .summary-bar {
+      display: flex; gap: 24px; flex-wrap: wrap; padding: 14px 20px;
+      border-bottom: 1px solid var(--border); background: #fafbfc;
+    }
+    .summary-stat { text-align: center; }
+    .summary-stat .num { font-size: 22px; font-weight: 700; }
+    .summary-stat .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .num-success { color: var(--success); }
+    .num-warn    { color: var(--warn); }
+    .num-error   { color: var(--error); }
+
+    /* Refresh bar */
+    .refresh-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 12px; color: var(--text-muted);
+      border-top: 1px solid var(--border); background: #fafbfc;
+    }
+    .refresh-bar button { font-size: 12px; }
+
+    /* Raw JSON */
+    pre.json-raw {
+      background: #f8f9fb; border: 1px solid var(--border); border-radius: 6px;
+      padding: 14px; font-size: 11px; font-family: var(--mono);
+      overflow: auto; max-height: 340px; line-height: 1.5;
+      white-space: pre; color: var(--text);
+    }
+
+    .session-row { cursor: pointer; }
+    .session-row.active td { background: var(--primary-light) !important; }
+    input[type="checkbox"] { cursor: pointer; accent-color: var(--primary); }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Zeotap → ODP Latency Test</h1>
+  <span class="badge">E2E</span>
+</header>
+
+<div class="container">
+
+  <!-- Config + Command -->
+  <div class="card">
+    <div class="card-header"><h2>Test Configuration</h2></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div>
+          <label>Parallel events (--count)</label>
+          <input type="number" id="cfg-count" value="3" min="1" max="50" />
+        </div>
+        <div>
+          <label>Poll interval ms (--poll-interval)</label>
+          <input type="number" id="cfg-poll" value="2000" min="100" />
+        </div>
+        <div>
+          <label>Timeout ms (--timeout)</label>
+          <input type="number" id="cfg-timeout" value="120000" min="5000" />
+        </div>
+        <div>
+          <label>Write key (--write-key)</label>
+          <input type="text" id="cfg-writekey" value="18116ee9-c6e4-4f8a-9345-2efe472deccf" />
+        </div>
+        <div>
+          <label>Audience names (--audiences)</label>
+          <input type="text" id="cfg-audiences" value="zeotap_1480882676452872192" />
+        </div>
+        <div>
+          <label>Page URL (--page-url)</label>
+          <input type="text" id="cfg-pageurl" value="http://127.0.0.1:8080/" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Command to run</label>
+        <div style="position:relative">
+          <div class="cmd-box" id="cmd-preview"></div>
+          <button class="copy-btn" id="copy-cmd-btn" onclick="copyCmd()">Copy</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button class="btn btn-primary" id="start-watch-btn" onclick="startWatching()">Start watching results</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadResults()">Refresh now</button>
+        <span id="watch-status" style="font-size:12px;color:var(--text-muted)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session list -->
+  <div class="card" id="sessions-card">
+    <div class="card-header">
+      <h2>Test Sessions</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-secondary btn-sm" onclick="loadIndex()">Refresh list</button>
+        <button class="btn btn-primary btn-sm" id="compare-btn" onclick="compareSelected()" disabled>Compare selected</button>
+      </div>
+    </div>
+    <div id="sessions-empty" style="padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px">
+      No sessions yet. Run the script and refresh.
+    </div>
+    <div style="overflow-x:auto;display:none" id="sessions-table-wrap">
+      <table class="visitor-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"></th>
+            <th>Started</th>
+            <th>Status</th>
+            <th>Events</th>
+            <th>Resolved</th>
+            <th>Avg Latency</th>
+            <th>Audiences</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="sessions-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cross-session aggregate -->
+  <div class="card" id="aggregate-card" style="display:none">
+    <div class="card-header">
+      <h2>Aggregate — Selected Sessions</h2>
+      <span id="aggregate-meta" style="font-size:12px;color:var(--text-muted)"></span>
+    </div>
+    <div class="summary-bar" id="aggregate-bar"></div>
+    <div style="overflow-x:auto">
+      <table class="visitor-table" id="aggregate-breakdown">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Events</th>
+            <th>Resolved</th>
+            <th>Timeout</th>
+            <th>Error</th>
+            <th>Min</th>
+            <th>Avg</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody id="aggregate-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Live results for active session -->
+  <div class="card" id="results-card" style="display:none">
+    <div class="summary-bar" id="summary-bar"></div>
+    <div class="card-header">
+      <h2>Visitor Results</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="batch-meta" style="font-size:12px;color:var(--text-muted)"></span>
+        <button class="btn btn-secondary btn-sm" onclick="closeSession()">Close</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="visitor-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Latency</th>
+            <th>Visitor ID</th>
+            <th>Event HTTP</th>
+            <th>Polls</th>
+            <th>Timeline</th>
+          </tr>
+        </thead>
+        <tbody id="visitor-tbody"></tbody>
+      </table>
+    </div>
+    <div class="refresh-bar">
+      <span id="last-refresh">Never refreshed</span>
+      <button class="btn btn-secondary btn-sm" onclick="loadResults()">Refresh</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleRaw()">Toggle raw JSON</button>
+    </div>
+  </div>
+
+  <!-- Raw JSON -->
+  <div class="card" id="raw-card" style="display:none">
+    <div class="card-header"><h2>Raw JSON</h2></div>
+    <div class="card-body">
+      <pre class="json-raw" id="raw-json"></pre>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="card">
+    <div class="card-header"><h2>How to run</h2></div>
+    <div class="card-body">
+      <ol style="font-size:13px;padding-left:18px;line-height:2">
+        <li>Configure params above and copy the command.</li>
+        <li>Open a terminal in the project root and paste the command.</li>
+        <li>Click <strong>Start watching results</strong> to follow the active session live.</li>
+        <li>Past sessions appear in the list above — click <strong>View</strong> to inspect or check boxes to compare.</li>
+      </ol>
+      <p style="margin-top:12px;font-size:12px;color:var(--text-muted)">
+        Run from the project root: <code>node server/latency-test.js ...</code><br>
+        Make sure <code>server/.env</code> has <code>ODP_API_KEY</code> set, and the proxy server is running (<code>node server/server.js</code>).
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var API = 'http://localhost:3001';
+  var watchInterval = null;
+  var activeFilename = null;
+  var sessionIndex = [];
+
+  // ── Command builder ──────────────────────────────────────────────────────────
+
+  function buildCmd() {
+    var count     = document.getElementById('cfg-count').value.trim();
+    var poll      = document.getElementById('cfg-poll').value.trim();
+    var timeout   = document.getElementById('cfg-timeout').value.trim();
+    var writeKey  = document.getElementById('cfg-writekey').value.trim();
+    var audiences = document.getElementById('cfg-audiences').value.trim();
+    var pageUrl   = document.getElementById('cfg-pageurl').value.trim();
+    return [
+      'node server/latency-test.js',
+      '--count '         + count,
+      '--poll-interval ' + poll,
+      '--timeout '       + timeout,
+      '--write-key '     + writeKey,
+      '--audiences "'    + audiences + '"',
+      '--page-url "'     + pageUrl + '"',
+    ].join(' \\\n  ');
+  }
+
+  function updateCmd() { document.getElementById('cmd-preview').textContent = buildCmd(); }
+
+  function copyCmd() {
+    navigator.clipboard.writeText(buildCmd()).then(function() {
+      var btn = document.getElementById('copy-cmd-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+    });
+  }
+
+  document.querySelectorAll('.form-grid input').forEach(function(el) {
+    el.addEventListener('input', updateCmd);
+  });
+  updateCmd();
+
+  // ── Watch toggle ─────────────────────────────────────────────────────────────
+
+  function startWatching() {
+    if (watchInterval) {
+      clearInterval(watchInterval);
+      watchInterval = null;
+      document.getElementById('start-watch-btn').textContent = 'Start watching results';
+      document.getElementById('watch-status').textContent = 'Stopped.';
+      return;
+    }
+    // Watch the most recent session from index
+    fetch(API + '/api/results-index')
+      .then(function(r) { return r.json(); })
+      .then(function(idx) {
+        if (!idx.length) {
+          document.getElementById('watch-status').textContent = 'No sessions found — run the script first.';
+          return;
+        }
+        activeFilename = idx[0].filename;
+        document.getElementById('start-watch-btn').textContent = 'Stop watching';
+        document.getElementById('watch-status').textContent = 'Watching latest session…';
+        loadResults();
+        watchInterval = setInterval(function() {
+          loadResults();
+          loadIndex();
+        }, 2000);
+      })
+      .catch(function() {
+        document.getElementById('watch-status').textContent = 'Cannot reach server on ' + API;
+      });
+  }
+
+  // ── Session index ─────────────────────────────────────────────────────────────
+
+  function loadIndex() {
+    fetch(API + '/api/results-index')
+      .then(function(r) { return r.json(); })
+      .then(function(idx) {
+        sessionIndex = idx;
+        renderIndex(idx);
+      })
+      .catch(function() {});
+  }
+
+  function renderIndex(idx) {
+    var empty = document.getElementById('sessions-empty');
+    var wrap  = document.getElementById('sessions-table-wrap');
+    if (!idx.length) { empty.style.display = ''; wrap.style.display = 'none'; return; }
+    empty.style.display = 'none';
+    wrap.style.display = '';
+
+    var tbody = document.getElementById('sessions-tbody');
+    tbody.innerHTML = idx.map(function(s) {
+      var started = s.startedAt ? new Date(s.startedAt).toLocaleString() : '—';
+      var statusCls = s.status === 'done' ? 'pill-resolved' : (s.status === 'running' ? 'pill-polling' : 'pill-idle');
+      var pulse = s.status === 'running' ? ' dot-pulse' : '';
+      var avgCell = s.avgMs != null ? fmtMs(s.avgMs) : '—';
+      var resolvedCell = s.resolved != null ? s.resolved + ' / ' + s.count : '— / ' + s.count;
+      var isActive = activeFilename === s.filename;
+      return '<tr class="session-row' + (isActive ? ' active' : '') + '" data-filename="' + esc(s.filename) + '">'
+        + '<td><input type="checkbox" class="session-cb" value="' + esc(s.filename) + '" onchange="onCheckChange()"></td>'
+        + '<td style="white-space:nowrap">' + started + '</td>'
+        + '<td><span class="status-pill ' + statusCls + '"><span class="dot' + pulse + '"></span>' + s.status + '</span></td>'
+        + '<td style="color:var(--text-muted)">' + s.count + '</td>'
+        + '<td>' + resolvedCell + '</td>'
+        + '<td><strong>' + avgCell + '</strong></td>'
+        + '<td style="font-size:11px;color:var(--text-muted)">' + esc((s.audienceNames || []).join(', ')) + '</td>'
+        + '<td><button class="btn btn-secondary btn-sm" onclick="viewSession(' + "'" + esc(s.filename) + "'" + ')">View</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  function onCheckChange() {
+    var checked = document.querySelectorAll('.session-cb:checked').length;
+    document.getElementById('compare-btn').disabled = checked < 2;
+  }
+
+  function toggleSelectAll(cb) {
+    document.querySelectorAll('.session-cb').forEach(function(el) { el.checked = cb.checked; });
+    onCheckChange();
+  }
+
+  function viewSession(filename) {
+    activeFilename = filename;
+    loadResults();
+    // re-render index to highlight active row
+    renderIndex(sessionIndex);
+  }
+
+  function closeSession() {
+    document.getElementById('results-card').style.display = 'none';
+    document.getElementById('raw-card').style.display = 'none';
+    activeFilename = null;
+    renderIndex(sessionIndex);
+  }
+
+  // ── Load & render active session ──────────────────────────────────────────────
+
+  function loadResults() {
+    if (!activeFilename) return;
+    fetch(API + '/api/results/' + encodeURIComponent(activeFilename) + '?_=' + Date.now())
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        document.getElementById('last-refresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
+        renderResults(data);
+        document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
+
+        var done = data.visitors && data.visitors.every(function(v) {
+          return v && (v.status === 'resolved' || v.status === 'timeout' || v.status === 'error' || v.status === 'no-odp-key');
+        });
+        if (done && watchInterval) {
+          clearInterval(watchInterval);
+          watchInterval = null;
+          document.getElementById('start-watch-btn').textContent = 'Start watching results';
+          document.getElementById('watch-status').textContent = 'All done.';
+        }
+      })
+      .catch(function(err) {
+        document.getElementById('last-refresh').textContent = 'Error: ' + err.message;
+      });
+  }
+
+  function renderResults(data) {
+    document.getElementById('results-card').style.display = 'block';
+    var visitors = data.visitors || [];
+    var resolvedMs = visitors.filter(function(v) { return v && v.resolvedAfterMs != null; }).map(function(v) { return v.resolvedAfterMs; });
+    var resolved = resolvedMs.length;
+    var timeout  = visitors.filter(function(v) { return v && v.status === 'timeout'; }).length;
+    var errored  = visitors.filter(function(v) { return v && (v.status === 'error' || v.status === 'no-odp-key'); }).length;
+    var inprog   = visitors.filter(function(v) { return v && (v.status === 'polling' || v.status === 'firing'); }).length;
+    var avgMs = resolved ? Math.round(resolvedMs.reduce(function(a,b){return a+b;},0) / resolved) : null;
+    var minMs = resolved ? Math.min.apply(null, resolvedMs) : null;
+    var maxMs = resolved ? Math.max.apply(null, resolvedMs) : null;
+
+    document.getElementById('summary-bar').innerHTML = [
+      stat(resolved,        'Resolved',    'num-success'),
+      stat(inprog,          'In Progress', 'num-warn'),
+      stat(timeout,         'Timeout',     'num-error'),
+      stat(errored,         'Error',       'num-error'),
+      stat(visitors.length, 'Total',       ''),
+      avgMs != null ? stat(fmtMs(avgMs), 'Avg',  'num-success') : '',
+      minMs != null ? stat(fmtMs(minMs), 'Min',  'num-success') : '',
+      maxMs != null ? stat(fmtMs(maxMs), 'Max',  'num-warn')    : '',
+    ].join('');
+
+    var started = data.startedAt ? new Date(data.startedAt).toLocaleString() : '';
+    document.getElementById('batch-meta').textContent =
+      (data.batchId || '').slice(0, 8) + '  ·  ' + started + '  ·  ' + (data.filename || '');
+
+    document.getElementById('visitor-tbody').innerHTML = visitors.map(function(v, i) {
+      if (!v) return '<tr><td>' + i + '</td><td><span class="status-pill pill-idle"><span class="dot"></span>pending</span></td><td colspan="5">—</td></tr>';
+      return renderVisitorRow(v, i);
+    }).join('');
+  }
+
+  // ── Cross-session comparison ──────────────────────────────────────────────────
+
+  function compareSelected() {
+    var filenames = Array.from(document.querySelectorAll('.session-cb:checked')).map(function(el) { return el.value; });
+    if (filenames.length < 2) return;
+
+    Promise.all(filenames.map(function(f) {
+      return fetch(API + '/api/results/' + encodeURIComponent(f)).then(function(r) { return r.json(); });
+    })).then(function(datasets) {
+      renderAggregate(datasets);
+    }).catch(function(err) {
+      alert('Failed to load sessions: ' + err.message);
+    });
+  }
+
+  function sessionStats(data) {
+    var visitors = data.visitors || [];
+    var resolvedMs = visitors.filter(function(v) { return v && v.resolvedAfterMs != null; }).map(function(v) { return v.resolvedAfterMs; });
+    return {
+      filename: data.filename || data.batchId,
+      startedAt: data.startedAt,
+      total: visitors.length,
+      resolved: resolvedMs.length,
+      timeout:  visitors.filter(function(v) { return v && v.status === 'timeout'; }).length,
+      error:    visitors.filter(function(v) { return v && (v.status === 'error' || v.status === 'no-odp-key'); }).length,
+      minMs:    resolvedMs.length ? Math.min.apply(null, resolvedMs) : null,
+      avgMs:    resolvedMs.length ? Math.round(resolvedMs.reduce(function(a,b){return a+b;},0) / resolvedMs.length) : null,
+      maxMs:    resolvedMs.length ? Math.max.apply(null, resolvedMs) : null,
+      resolvedMs: resolvedMs,
+    };
+  }
+
+  function renderAggregate(datasets) {
+    var stats = datasets.map(sessionStats);
+    var allMs = stats.reduce(function(acc, s) { return acc.concat(s.resolvedMs); }, []);
+    var totalResolved = stats.reduce(function(a, s) { return a + s.resolved; }, 0);
+    var totalTotal    = stats.reduce(function(a, s) { return a + s.total; }, 0);
+    var globalAvg = allMs.length ? Math.round(allMs.reduce(function(a,b){return a+b;},0) / allMs.length) : null;
+    var globalMin = allMs.length ? Math.min.apply(null, allMs) : null;
+    var globalMax = allMs.length ? Math.max.apply(null, allMs) : null;
+
+    document.getElementById('aggregate-card').style.display = 'block';
+    document.getElementById('aggregate-meta').textContent =
+      stats.length + ' sessions  ·  ' + totalResolved + '/' + totalTotal + ' resolved';
+
+    document.getElementById('aggregate-bar').innerHTML = [
+      stat(stats.length,   'Sessions',   ''),
+      stat(totalResolved,  'Resolved',   'num-success'),
+      stat(totalTotal,     'Total',      ''),
+      globalAvg != null ? stat(fmtMs(globalAvg), 'Global Avg', 'num-success') : '',
+      globalMin != null ? stat(fmtMs(globalMin), 'Global Min', 'num-success') : '',
+      globalMax != null ? stat(fmtMs(globalMax), 'Global Max', 'num-warn')    : '',
+    ].join('');
+
+    document.getElementById('aggregate-tbody').innerHTML = stats.map(function(s) {
+      var started = s.startedAt ? new Date(s.startedAt).toLocaleString() : '—';
+      return '<tr>'
+        + '<td style="font-size:11px"><div style="font-family:var(--mono);color:var(--text-muted)">' + esc(s.filename) + '</div><div style="font-size:11px;color:var(--text-muted)">' + started + '</div></td>'
+        + '<td>' + s.total + '</td>'
+        + '<td style="color:var(--success);font-weight:600">' + s.resolved + '</td>'
+        + '<td style="color:' + (s.timeout ? 'var(--error)' : 'var(--text-muted)') + '">' + s.timeout + '</td>'
+        + '<td style="color:' + (s.error   ? 'var(--error)' : 'var(--text-muted)') + '">' + s.error   + '</td>'
+        + '<td>' + fmtMs(s.minMs) + '</td>'
+        + '<td><strong>' + fmtMs(s.avgMs) + '</strong></td>'
+        + '<td>' + fmtMs(s.maxMs) + '</td>'
+        + '</tr>';
+    }).join('');
+
+    document.getElementById('aggregate-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Visitor row ───────────────────────────────────────────────────────────────
+
+  function renderVisitorRow(v, i) {
+    var pillClass = {
+      resolved:     'pill-resolved',
+      timeout:      'pill-timeout',
+      error:        'pill-error',
+      'no-odp-key': 'pill-error',
+      polling:      'pill-polling',
+      firing:       'pill-firing',
+    }[v.status] || 'pill-idle';
+    var pulse = (v.status === 'polling' || v.status === 'firing') ? ' dot-pulse' : '';
+
+    var latencyCell;
+    if (v.status === 'resolved') {
+      latencyCell = '<span class="vc-latency">' + fmtMs(v.resolvedAfterMs) + '</span>';
+    } else if (v.status === 'polling') {
+      var elapsed = v.polls.length ? v.polls[v.polls.length - 1].elapsedMs : 0;
+      latencyCell = '<span class="vc-latency-pending">' + fmtMs(elapsed) + '…</span>';
+    } else if (v.status === 'timeout') {
+      var lastMs = v.polls.length ? v.polls[v.polls.length - 1].elapsedMs : 0;
+      latencyCell = '<span class="vc-latency-timeout">&gt;' + fmtMs(lastMs) + '</span>';
+    } else if (v.eventError) {
+      latencyCell = '<span style="font-size:11px;color:var(--error)">' + esc(v.eventError) + '</span>';
+    } else {
+      latencyCell = '—';
+    }
+
+    var dots = v.polls.map(function(p) {
+      var cls = p.error ? 'poll-error' : (p.audiences && p.audiences.some(function(a) { return a.is_ready; }) ? 'poll-hit' : 'poll-miss');
+      return '<span class="poll-dot ' + cls + '" title="' + esc(p.elapsedMs + 'ms' + (p.error ? ': ' + p.error : '')) + '"></span>';
+    }).join('');
+
+    var httpCell = v.eventHttpStatus
+      ? '<span style="font-weight:600;color:' + (v.eventHttpStatus < 400 ? 'var(--success)' : 'var(--error)') + '">' + v.eventHttpStatus + '</span>'
+        + (v.eventRttMs != null ? '<span style="color:var(--text-muted);font-size:11px;margin-left:4px">(' + v.eventRttMs + 'ms RTT)</span>' : '')
+      : '—';
+
+    return '<tr>'
+      + '<td style="font-weight:600;color:var(--text-muted)">' + i + '</td>'
+      + '<td><span class="status-pill ' + pillClass + '"><span class="dot' + pulse + '"></span>' + v.status + '</span></td>'
+      + '<td>' + latencyCell + '</td>'
+      + '<td><span class="vc-id">' + esc(v.visitorId) + '</span></td>'
+      + '<td>' + httpCell + '</td>'
+      + '<td style="color:var(--text-muted);font-size:12px">' + v.polls.length + '</td>'
+      + '<td title="Yellow=miss · Green=hit · Red=error">' + (dots || '<span style="color:#ccc;font-size:11px">no polls yet</span>') + '</td>'
+      + '</tr>';
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+
+  function stat(val, lbl, cls) {
+    return '<div class="summary-stat"><div class="num ' + cls + '">' + val + '</div><div class="lbl">' + lbl + '</div></div>';
+  }
+  function fmtMs(ms) { return ms == null ? '—' : ms + 'ms'; }
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function toggleRaw() {
+    var c = document.getElementById('raw-card');
+    c.style.display = c.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Init
+  loadIndex();
+</script>
+</body>
+</html>

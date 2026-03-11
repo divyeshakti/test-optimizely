@@ -416,6 +416,50 @@
     <div id="status"></div>
 
     <div id="main-app" style="display:none">
+
+      <!-- Audience Readiness Panel -->
+      <div id="audience-panel" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:24px;overflow:hidden">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);background:#fafbfc;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <strong style="font-size:15px">Audience Readiness</strong>
+            <code style="font-size:11px;background:#f0f1f4;padding:2px 8px;border-radius:4px">zeotap_1480882676452872192</code>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span id="ap-server-dot" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted)">
+              <span id="ap-server-dot-icon" style="width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block"></span>
+              <span id="ap-server-dot-label">server</span>
+            </span>
+            <button class="btn btn-sm btn-secondary" id="ap-recheck-btn">Re-check</button>
+          </div>
+        </div>
+        <div id="ap-body" style="padding:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <div id="ap-status-icon" style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">?</div>
+          <div>
+            <div id="ap-status-text" style="font-size:22px;font-weight:700;color:var(--text-muted)">Waiting...</div>
+            <div id="ap-status-sub" style="font-size:13px;color:var(--text-muted);margin-top:2px">Checking visitor ID and server status</div>
+          </div>
+          <div id="ap-meta" style="margin-left:auto;font-size:12px;color:var(--text-muted);text-align:right;display:none">
+            <div id="ap-ttq" style="display:none;margin-bottom:6px">
+              <span id="ap-ttq-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;opacity:0.6">Time to qualify</span><br>
+              <span id="ap-ttq-value" style="font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--success)">—</span>
+            </div>
+            <div id="ap-vuid-display"></div>
+            <div id="ap-state-display"></div>
+            <div id="ap-checked-at"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debug Log Panel -->
+      <div id="ap-debug-panel" style="margin-bottom:24px;font-size:12px">
+        <button id="ap-debug-toggle" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:0;margin-bottom:4px;display:flex;align-items:center;gap:4px">
+          <span id="ap-debug-arrow" style="display:inline-block;transition:transform 0.15s">▶</span> debug log
+        </button>
+        <div id="ap-debug-log" style="display:none;background:#1a1a2e;color:#a0e4ff;border-radius:6px;padding:10px 14px;max-height:220px;overflow-y:auto;font-family:monospace;line-height:1.6">
+          <div style="color:#666;font-style:italic">— log will appear here —</div>
+        </div>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" data-tab="tab-verification">Verification</button>
         <button class="tab-btn" data-tab="tab-experiments">Experiments</button>
@@ -617,6 +661,36 @@ return results;</textarea>
           <div class="card-body">
             <pre id="curl-watch" style="background:#1a1f36;color:#e0e4eb;padding:12px;border:none;border-radius:6px;font-size:12px;user-select:all"></pre>
           </div>
+        </div>
+
+        <!-- Live Check Section -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Live Audience Check</h2>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Runs the audience check directly from the browser via the local proxy server. Uses the Europe endpoint. API key is read from <code>server/.env</code> — not from the field above.</p>
+            <ul class="check-list" style="margin-bottom:16px">
+              <li>
+                <span class="check-icon check-wait" id="live-server-icon">...</span>
+                <span id="live-server-label">Server: checking...</span>
+                <code style="margin-left:auto;font-size:11px;color:var(--text-muted)">cd server && npm install && node server.js</code>
+              </li>
+              <li>
+                <span class="check-icon check-wait" id="live-vuid-icon">...</span>
+                <span id="live-vuid-label">Visitor ID: waiting...</span>
+              </li>
+            </ul>
+            <div class="form-row-inline">
+              <button class="btn btn-primary" id="live-check-btn" disabled>Run Live Check</button>
+              <span id="live-check-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="live-result-card" style="display:none">
+          <div class="card-header"><h2>Audience Check Result</h2></div>
+          <div class="card-body" id="live-result-body"></div>
         </div>
       </div>
 
@@ -1220,6 +1294,301 @@ return results;</textarea>
         document.getElementById('copy-curl-pretty-btn').addEventListener('click', function() { copyFromElement('curl-output'); });
         document.getElementById('copy-curl-plain-btn').addEventListener('click', function() { copyFromElement('curl-plain'); });
         document.getElementById('copy-curl-watch-btn').addEventListener('click', function() { copyFromElement('curl-watch'); });
+
+        // -- Debug Log --
+        document.getElementById('ap-debug-toggle').addEventListener('click', function() {
+          var log = document.getElementById('ap-debug-log');
+          var arrow = document.getElementById('ap-debug-arrow');
+          var open = log.style.display !== 'none';
+          log.style.display = open ? 'none' : 'block';
+          arrow.style.transform = open ? '' : 'rotate(90deg)';
+        });
+
+        function apLog(msg, color) {
+          var log = document.getElementById('ap-debug-log');
+          var t = new Date().toLocaleTimeString('en-GB', { hour12: false, hour:'2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits: 3 });
+          var line = document.createElement('div');
+          line.style.color = color || '#a0e4ff';
+          line.textContent = '[' + t + '] ' + msg;
+          // remove placeholder
+          var placeholder = log.querySelector('div[style*="font-style"]');
+          if (placeholder) placeholder.remove();
+          log.appendChild(line);
+          log.scrollTop = log.scrollHeight;
+        }
+
+        // -- Audience Readiness Panel --
+        var AP_AUDIENCE = 'zeotap_1480882676452872192';
+        var apServerUp = false;
+        var apVuid = null;
+        var apAutoFired = false;
+        var apInflight = false;
+        var apStartTime = Date.now(); // page load = t0
+
+        function apSetServer(up) {
+          apLog('apSetServer(' + up + ')  fired=' + apAutoFired + ' inflight=' + apInflight, up ? '#7fffb0' : '#ff8080');
+          apServerUp = up;
+          var dot = document.getElementById('ap-server-dot-icon');
+          var lbl = document.getElementById('ap-server-dot-label');
+          dot.style.background = up ? 'var(--success)' : 'var(--error)';
+          lbl.textContent = up ? 'server running' : 'server offline';
+          if (!apAutoFired && !apInflight) {
+            apMaybeAutoFire();
+          }
+        }
+
+        function apSetVuid(vuid) {
+          var prev = apVuid;
+          apVuid = vuid || null;
+          apLog('apSetVuid(' + (vuid ? vuid.slice(0,8)+'…' : 'null') + ')  prev=' + (prev ? prev.slice(0,8)+'…' : 'null') + ' fired=' + apAutoFired + ' inflight=' + apInflight, '#ffe0a0');
+          if (!apAutoFired && !apInflight && apVuid && apVuid !== prev) {
+            apMaybeAutoFire();
+          } else if (!apAutoFired && !apInflight && !apVuid) {
+            apSetState('waiting');
+          }
+        }
+
+        function apSetState(state) {
+          apLog('apSetState(' + state + ')  fired=' + apAutoFired + ' inflight=' + apInflight, state === 'waiting' ? '#ff9999' : state === 'ready' ? '#7fffb0' : state === 'loading' ? '#ffe0a0' : '#a0e4ff');
+          // state: 'waiting' | 'loading' | 'ready' | 'not_ready' | 'error'
+          var icon = document.getElementById('ap-status-icon');
+          var text = document.getElementById('ap-status-text');
+          var sub  = document.getElementById('ap-status-sub');
+          var meta = document.getElementById('ap-meta');
+          if (state === 'waiting') {
+            icon.style.background = '#f0f0f0'; icon.style.color = '#999'; icon.textContent = '?';
+            text.style.color = 'var(--text-muted)'; text.textContent = 'Waiting...';
+            sub.textContent = apServerUp ? (apVuid ? 'Running check...' : 'Waiting for visitor ID') : 'Start server: cd server && node server.js';
+            meta.style.display = 'none';
+          } else if (state === 'loading') {
+            icon.style.background = 'var(--warn-bg)'; icon.style.color = 'var(--warn)'; icon.textContent = '↻';
+            text.style.color = 'var(--warn)'; text.textContent = 'Checking...';
+            sub.textContent = 'Querying ODP Europe endpoint';
+            meta.style.display = 'none';
+          } else if (state === 'ready') {
+            icon.style.background = 'var(--success-bg)'; icon.style.color = 'var(--success)'; icon.textContent = '✓';
+            text.style.color = 'var(--success)'; text.textContent = 'Ready';
+            sub.textContent = 'User is qualified and ready to be served in this audience';
+            meta.style.display = 'block';
+          } else if (state === 'not_ready') {
+            icon.style.background = '#f0f0f0'; icon.style.color = '#999'; icon.textContent = '✗';
+            text.style.color = 'var(--text-muted)'; text.textContent = 'Not Ready';
+            sub.textContent = 'User has not yet qualified for this audience';
+            meta.style.display = 'block';
+          } else if (state === 'error') {
+            icon.style.background = 'var(--error-bg)'; icon.style.color = 'var(--error)'; icon.textContent = '!';
+            text.style.color = 'var(--error)'; text.textContent = 'Error';
+            meta.style.display = 'none';
+          }
+        }
+
+        function apRunCheck() {
+          apLog('apRunCheck()  start', '#c8a0ff');
+          if (apInflight || !apServerUp || !apVuid) return;
+          apInflight = true;
+          apSetState('loading');
+
+          fetch('http://localhost:3001/api/audience-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ visitorId: apVuid, audienceNames: [AP_AUDIENCE] })
+          }).then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+          .then(function(res) {
+            apInflight = false;
+            apLog('apRunCheck() response status=' + res.status, '#7fffb0');
+            var now = new Date().toLocaleTimeString();
+            document.getElementById('ap-vuid-display').textContent = 'Visitor: ' + apVuid;
+            document.getElementById('ap-checked-at').textContent = 'Checked at ' + now;
+
+            if (res.data.errors || (res.status !== 200 && res.data.error)) {
+              var msg = (res.data.errors && res.data.errors[0].message) || res.data.error || 'Request failed';
+              apSetState('error');
+              document.getElementById('ap-status-sub').textContent = msg;
+              return;
+            }
+
+            var edges = (res.data.data && res.data.data.customer && res.data.data.customer.audiences && res.data.data.customer.audiences.edges) || [];
+            if (edges.length === 0) {
+              apSetState('not_ready');
+              document.getElementById('ap-state-display').textContent = 'No audience data returned';
+              return;
+            }
+            var node = edges[0].node;
+            document.getElementById('ap-state-display').textContent = 'State: ' + (node.state || '—');
+            if (node.is_ready) {
+              var elapsedMs = Date.now() - apStartTime;
+              var ttqText = elapsedMs < 1000
+                ? (elapsedMs + ' ms')
+                : elapsedMs < 60000
+                  ? ((elapsedMs / 1000).toFixed(1) + ' s')
+                  : (Math.floor(elapsedMs / 60000) + 'm ' + Math.round((elapsedMs % 60000) / 1000) + 's');
+              document.getElementById('ap-ttq-value').textContent = ttqText;
+              document.getElementById('ap-ttq').style.display = 'block';
+              apLog('Time to qualify: ' + ttqText, '#7fffb0');
+            } else {
+              document.getElementById('ap-ttq').style.display = 'none';
+            }
+            apSetState(node.is_ready ? 'ready' : 'not_ready');
+          }).catch(function(err) {
+            apInflight = false;
+            apLog('apRunCheck() error: ' + err.message, '#ff8080');
+            apSetState('error');
+            document.getElementById('ap-status-sub').textContent = err.message;
+          });
+        }
+
+        function apMaybeAutoFire() {
+          apLog('apMaybeAutoFire()  server=' + apServerUp + ' vuid=' + !!apVuid + ' fired=' + apAutoFired + ' inflight=' + apInflight, '#c8a0ff');
+          if (apInflight || apAutoFired) return;
+          if (!apServerUp || !apVuid) {
+            apSetState('waiting');
+            return;
+          }
+          apAutoFired = true;
+          apRunCheck();
+        }
+
+        document.getElementById('ap-recheck-btn').addEventListener('click', function() {
+          apAutoFired = false;
+          apInflight = false;
+          apStartTime = Date.now();
+          document.getElementById('ap-ttq').style.display = 'none';
+          apSetState('waiting');
+          apMaybeAutoFire();
+        });
+
+        // -- Live Check --
+        var liveServerUp = false;
+        var liveVuidReady = false;
+
+        function updateLiveBtn() {
+          document.getElementById('live-check-btn').disabled = !(liveServerUp && liveVuidReady);
+        }
+
+        function setLiveServerStatus(up) {
+          liveServerUp = up;
+          var icon = document.getElementById('live-server-icon');
+          var label = document.getElementById('live-server-label');
+          icon.className = 'check-icon ' + (up ? 'check-pass' : 'check-fail');
+          icon.textContent = up ? '✓' : '✗';
+          label.textContent = up ? 'Server: Running (http://localhost:3001)' : 'Server: Not running — start with: cd server && node server.js';
+          updateLiveBtn();
+          apSetServer(up);
+        }
+
+        function setLiveVuidStatus(vuid) {
+          liveVuidReady = !!vuid;
+          var icon = document.getElementById('live-vuid-icon');
+          var label = document.getElementById('live-vuid-label');
+          icon.className = 'check-icon ' + (vuid ? 'check-pass' : 'check-warn');
+          icon.textContent = vuid ? '✓' : '~';
+          label.textContent = vuid ? 'Visitor ID: ' + vuid : 'Visitor ID: Not available yet';
+          updateLiveBtn();
+          apSetVuid(vuid);
+        }
+
+        function pollServer() {
+          fetch('http://localhost:3001/health').then(function(r) {
+            setLiveServerStatus(r.ok);
+          }).catch(function() {
+            setLiveServerStatus(false);
+          });
+        }
+        pollServer();
+        setInterval(pollServer, 3000);
+
+        function pollVuid() {
+          var current = document.getElementById('odp-vuid').value.trim();
+          if (current) {
+            setLiveVuidStatus(current);
+          } else {
+            var opt = window.optimizely;
+            if (opt && typeof opt.get === 'function') {
+              var vid = opt.get('visitor_id');
+              if (vid && vid.randomId) {
+                setLiveVuidStatus(vid.randomId);
+                return;
+              }
+            }
+            setLiveVuidStatus(null);
+            setTimeout(pollVuid, 500);
+          }
+        }
+        pollVuid();
+        document.getElementById('odp-vuid').addEventListener('input', function() {
+          setLiveVuidStatus(this.value.trim() || null);
+        });
+
+        document.getElementById('live-check-btn').addEventListener('click', function() {
+          var btn = this;
+          btn.disabled = true;
+          var statusEl = document.getElementById('live-check-status');
+          statusEl.className = 'status-msg';
+          statusEl.textContent = 'Checking...';
+
+          var vuid = document.getElementById('odp-vuid').value.trim();
+          var audienceStr = document.getElementById('odp-audience-names').value.trim();
+          var audiences = audienceStr
+            ? audienceStr.split(',').map(function(s) { return s.trim().replace(/^["']|["']$/g, ''); }).filter(Boolean)
+            : ['zeotap_1480882676452872192'];
+
+          fetch('http://localhost:3001/api/audience-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ visitorId: vuid, audienceNames: audiences })
+          }).then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+          .then(function(res) {
+            btn.disabled = false;
+            var resultCard = document.getElementById('live-result-card');
+            var resultBody = document.getElementById('live-result-body');
+            resultCard.style.display = 'block';
+
+            if (res.data.errors) {
+              statusEl.className = 'status-msg status-err';
+              statusEl.textContent = 'Error';
+              resultBody.innerHTML = '<p class="status-msg status-err" style="display:inline-block">' + (res.data.errors[0].message || 'GraphQL error') + '</p>';
+              return;
+            }
+            if (res.status !== 200 || res.data.error) {
+              statusEl.className = 'status-msg status-err';
+              statusEl.textContent = 'Error';
+              resultBody.innerHTML = '<p class="status-msg status-err" style="display:inline-block">' + (res.data.error || 'Request failed') + '</p>';
+              return;
+            }
+
+            var edges = (res.data.data && res.data.data.customer && res.data.data.customer.audiences && res.data.data.customer.audiences.edges) || [];
+            statusEl.className = 'status-msg status-ok';
+            statusEl.textContent = 'Done';
+
+            if (edges.length === 0) {
+              resultBody.innerHTML = '<p class="text-muted">No audience segments returned — the audience may not exist in this ODP account.</p>';
+              return;
+            }
+
+            var html = '<table class="exp-table"><thead><tr><th>Audience</th><th>State</th><th>Description</th><th>Ready?</th></tr></thead><tbody>';
+            edges.forEach(function(edge) {
+              var n = edge.node;
+              var stateClass = n.state === 'qualified' ? 'status-active' : 'status-inactive';
+              var readyHtml = n.is_ready
+                ? '<span style="color:var(--success);font-weight:700;font-size:16px">✓ Ready</span>'
+                : '<span style="color:var(--error);font-weight:700;font-size:16px">✗ Not Ready</span>';
+              html += '<tr>'
+                + '<td><code>' + n.name + '</code></td>'
+                + '<td><span class="status-badge ' + stateClass + '">' + (n.state || '—') + '</span></td>'
+                + '<td>' + (n.description || '—') + '</td>'
+                + '<td>' + readyHtml + '</td>'
+                + '</tr>';
+            });
+            html += '</tbody></table>';
+            resultBody.innerHTML = html;
+          }).catch(function(err) {
+            btn.disabled = false;
+            statusEl.className = 'status-msg status-err';
+            statusEl.textContent = 'Network error';
+            document.getElementById('live-result-card').style.display = 'block';
+            document.getElementById('live-result-body').innerHTML = '<p class="status-msg status-err" style="display:inline-block">' + err.message + '</p>';
+          });
+        });
       })();
     }
   </script>

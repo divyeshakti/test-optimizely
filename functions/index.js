@@ -10,7 +10,7 @@ app.use(cors({ origin: true }));
 app.use(express.json());
 
 app.post('/api/audience-check', async (req, res) => {
-  const apiKey = process.env.ODP_API_KEY || functions.config().odp?.api_key;
+  const apiKey = process.env.ODP_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'ODP_API_KEY not configured' });
   }

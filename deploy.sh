@@ -19,10 +19,14 @@ if [ -z "$ODP_API_KEY" ]; then
   exit 1
 fi
 
-echo "Setting ODP_API_KEY secret in Firebase..."
-echo "$ODP_API_KEY" | firebase functions:secrets:set ODP_API_KEY
+# Write functions/.env so Firebase CLI uploads it with the deployment
+FUNCTIONS_ENV="$(dirname "$0")/functions/.env"
+echo "ODP_API_KEY=$ODP_API_KEY" > "$FUNCTIONS_ENV"
+echo "Wrote $FUNCTIONS_ENV"
 
 echo "Deploying to Firebase..."
 firebase deploy
 
+# Clean up — don't leave the key on disk after deploy
+rm -f "$FUNCTIONS_ENV"
 echo "Done."

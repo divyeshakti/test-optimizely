@@ -48,4 +48,6 @@ app.post('/api/audience-check', async (req, res) => {
   }
 });
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions
+  .runWith({ secrets: ['ODP_API_KEY'] })
+  .https.onRequest(app);

@@ -1,0 +1,24 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "server/node_modules/**",
+      "server/.env",
+      "server/test-results.json",
+      "functions/**",
+      "node_modules/**",
+      ".git/**",
+      ".claude/**",
+      "docs/**"
+    ],
+    "rewrites": [
+      { "source": "/api/audience-check", "function": "api" }
+    ]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  }
+}

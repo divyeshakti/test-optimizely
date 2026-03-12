@@ -278,7 +278,7 @@
             <th>Status</th>
             <th>Events</th>
             <th>Resolved</th>
-            <th>Avg Latency</th>
+            <th>Avg TTQ</th>
             <th>Audiences</th>
             <th></th>
           </tr>
@@ -304,9 +304,9 @@
             <th>Resolved</th>
             <th>Timeout</th>
             <th>Error</th>
-            <th>Min</th>
-            <th>Avg</th>
-            <th>Max</th>
+            <th>Min TTQ</th>
+            <th>Avg TTQ</th>
+            <th>Max TTQ</th>
           </tr>
         </thead>
         <tbody id="aggregate-tbody"></tbody>
@@ -330,7 +330,7 @@
           <tr>
             <th>#</th>
             <th>Status</th>
-            <th>Latency</th>
+            <th>TTQ</th>
             <th>Visitor ID</th>
             <th>Event HTTP</th>
             <th>Polls</th>
@@ -375,7 +375,9 @@
 </div>
 
 <script>
-  var API = 'http://localhost:3001';
+  var API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3001'
+    : '';
   var watchInterval = null;
   var activeFilename = null;
   var sessionIndex = [];
@@ -426,7 +428,7 @@
       return;
     }
     // Watch the most recent session from index
-    fetch(API + '/api/results-index')
+    fetch(resultsIndexUrl())
       .then(function(r) { return r.json(); })
       .then(function(idx) {
         if (!idx.length) {
@@ -449,8 +451,16 @@
 
   // ── Session index ─────────────────────────────────────────────────────────────
 
+  function resultsIndexUrl() {
+    return API === '' ? './server/results-index.json' : API + '/api/results-index';
+  }
+
+  function resultFileUrl(filename) {
+    return API === '' ? './server/results/' + encodeURIComponent(filename) : API + '/api/results/' + encodeURIComponent(filename);
+  }
+
   function loadIndex() {
-    fetch(API + '/api/results-index')
+    fetch(resultsIndexUrl())
       .then(function(r) { return r.json(); })
       .then(function(idx) {
         sessionIndex = idx;
@@ -515,7 +525,7 @@
 
   function loadResults() {
     if (!activeFilename) return;
-    fetch(API + '/api/results/' + encodeURIComponent(activeFilename) + '?_=' + Date.now())
+    fetch(resultFileUrl(activeFilename) + '?_=' + Date.now())
       .then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -558,9 +568,9 @@
       stat(timeout,         'Timeout',     'num-error'),
       stat(errored,         'Error',       'num-error'),
       stat(visitors.length, 'Total',       ''),
-      avgMs != null ? stat(fmtMs(avgMs), 'Avg',  'num-success') : '',
-      minMs != null ? stat(fmtMs(minMs), 'Min',  'num-success') : '',
-      maxMs != null ? stat(fmtMs(maxMs), 'Max',  'num-warn')    : '',
+      avgMs != null ? stat(fmtMs(avgMs), 'Avg TTQ',  'num-success') : '',
+      minMs != null ? stat(fmtMs(minMs), 'Min TTQ',  'num-success') : '',
+      maxMs != null ? stat(fmtMs(maxMs), 'Max TTQ',  'num-warn')    : '',
     ].join('');
 
     var started = data.startedAt ? new Date(data.startedAt).toLocaleString() : '';
@@ -622,9 +632,9 @@
       stat(stats.length,   'Sessions',   ''),
       stat(totalResolved,  'Resolved',   'num-success'),
       stat(totalTotal,     'Total',      ''),
-      globalAvg != null ? stat(fmtMs(globalAvg), 'Global Avg', 'num-success') : '',
-      globalMin != null ? stat(fmtMs(globalMin), 'Global Min', 'num-success') : '',
-      globalMax != null ? stat(fmtMs(globalMax), 'Global Max', 'num-warn')    : '',
+      globalAvg != null ? stat(fmtMs(globalAvg), 'Global Avg TTQ', 'num-success') : '',
+      globalMin != null ? stat(fmtMs(globalMin), 'Global Min TTQ', 'num-success') : '',
+      globalMax != null ? stat(fmtMs(globalMax), 'Global Max TTQ', 'num-warn')    : '',
     ].join('');
 
     document.getElementById('aggregate-tbody').innerHTML = stats.map(function(s) {

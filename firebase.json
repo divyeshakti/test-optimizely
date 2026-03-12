@@ -4,17 +4,17 @@
     "ignore": [
       "firebase.json",
       ".firebaserc",
-      "server/node_modules/**",
-      "server/.env",
-      "server/test-results.json",
+      "server/**",
       "functions/**",
       "node_modules/**",
       ".git/**",
       ".claude/**",
-      "docs/**"
+      "docs/**",
+      "deploy.sh"
     ],
     "rewrites": [
-      { "source": "/api/audience-check", "function": "api" }
+      { "source": "/api/audience-check", "function": "api" },
+      { "source": "/health", "function": "api" }
     ]
   },
   "functions": {

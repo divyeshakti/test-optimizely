@@ -9,6 +9,12 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+// Health check
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Audience check — proxies ODP GraphQL
 app.post('/api/audience-check', async (req, res) => {
   const apiKey = process.env.ODP_API_KEY;
   if (!apiKey) {

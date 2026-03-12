@@ -375,7 +375,7 @@
 </div>
 
 <script>
-  var API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:')
     ? 'http://localhost:3001'
     : '';
   var watchInterval = null;
@@ -452,11 +452,11 @@
   // ── Session index ─────────────────────────────────────────────────────────────
 
   function resultsIndexUrl() {
-    return API === '' ? './server/results-index.json' : API + '/api/results-index';
+    return API === '' ? './results-index.json' : API + '/api/results-index';
   }
 
   function resultFileUrl(filename) {
-    return API === '' ? './server/results/' + encodeURIComponent(filename) : API + '/api/results/' + encodeURIComponent(filename);
+    return API === '' ? './results/' + encodeURIComponent(filename) : API + '/api/results/' + encodeURIComponent(filename);
   }
 
   function loadIndex() {
@@ -590,7 +590,7 @@
     if (filenames.length < 2) return;
 
     Promise.all(filenames.map(function(f) {
-      return fetch(API + '/api/results/' + encodeURIComponent(f)).then(function(r) { return r.json(); });
+      return fetch(resultFileUrl(f)).then(function(r) { return r.json(); });
     })).then(function(datasets) {
       renderAggregate(datasets);
     }).catch(function(err) {

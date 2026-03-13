@@ -9,9 +9,20 @@
       var params = new URLSearchParams(window.location.search);
       var projectId = params.get('project_id');
       if (projectId) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.optimizely.com/js/' + encodeURIComponent(projectId) + '.js';
-        document.head.appendChild(s);
+        // Real Optimizely — always sync (blocking) to prevent flicker
+        document.write('<script src="https://cdn.optimizely.com/js/' + encodeURIComponent(projectId) + '.js"><\/script>');
+      } else {
+        // No real project — load mock to demonstrate flicker behaviour
+        // ?optimizely_mode=sync  → blocking, no flicker
+        // ?optimizely_mode=async → async + delay, flicker visible
+        var mode = params.get('optimizely_mode') || 'async';
+        if (mode === 'sync') {
+          document.write('<script src="/mock-experiment.js"><\/script>');
+        } else {
+          var m = document.createElement('script');
+          m.src = '/mock-experiment.js?delay=2000';
+          document.head.appendChild(m);
+        }
       }
     })();
   </script>
@@ -470,6 +481,22 @@
 </head>
 <body>
   <!-- Announcement bar (experiment target) -->
+  <!-- Flicker demo switcher -->
+  <div id="flicker-demo-bar" style="background:#1a1f36;color:#fff;font-size:13px;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span style="font-weight:600;opacity:0.7">Flicker Demo:</span>
+    <button id="demo-async-btn" onclick="(function(){var p=new URLSearchParams(window.location.search);p.set('optimizely_mode','async');window.open(window.location.pathname+'?'+p.toString(),'_blank');})()" style="background:#c5221f;color:#fff;border:none;padding:4px 14px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer">⚡ Open Async (flicker)</button>
+    <button id="demo-sync-btn" onclick="(function(){var p=new URLSearchParams(window.location.search);p.set('optimizely_mode','sync');window.open(window.location.pathname+'?'+p.toString(),'_blank');})()" style="background:#0d8050;color:#fff;border:none;padding:4px 14px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer">✅ Open Sync (no flicker)</button>
+    <span id="demo-mode-badge" style="margin-left:auto;font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700"></span>
+  </div>
+  <script>
+    (function() {
+      var mode = new URLSearchParams(window.location.search).get('optimizely_mode') || 'async';
+      var badge = document.getElementById('demo-mode-badge');
+      badge.textContent = 'CURRENT: ' + mode.toUpperCase();
+      badge.style.background = mode === 'sync' ? '#0d8050' : '#c5221f';
+    })();
+  </script>
+
   <div id="announcement-bar" class="announcement-bar">
     <span>📣 No announcement experiment running —</span>
     <span>target this with selector <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:4px">#announcement-bar</code></span>

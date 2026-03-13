@@ -1,0 +1,347 @@
+{
+  "batchId": "bb7e9867-2c52-4a15-a1b9-9a15e32ea294",
+  "startedAt": "2026-03-11T12:40:31.024Z",
+  "finishedAt": "2026-03-11T12:40:34.283Z",
+  "config": {
+    "count": 10,
+    "writeKey": "18116ee9-c6e4-4f8a-9345-2efe472deccf",
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "pollIntervalMs": 500,
+    "timeoutMs": 120000,
+    "pageUrl": "http://127.0.0.1:8080/"
+  },
+  "visitors": [
+    {
+      "index": 0,
+      "visitorId": "oeu1773232831027r0.653312857301839",
+      "zs": "bc5a05df-e5a9-43ba-b850-ab6db912828a",
+      "zi": "1e7abd96-ec26-4996-b04b-a638b596d1ad",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.143Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.690Z",
+          "elapsedMs": 2546,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.258Z",
+          "elapsedMs": 3114,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.259Z",
+      "resolvedAfterMs": 3115
+    },
+    {
+      "index": 1,
+      "visitorId": "oeu1773232831045r0.9150918791085978",
+      "zs": "0f0d2229-01b6-4502-bf4b-61172a947a43",
+      "zi": "80456a1a-f6dd-4349-9a05-3b18f604c8c1",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.190Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.697Z",
+          "elapsedMs": 2507,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.265Z",
+          "elapsedMs": 3075,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.265Z",
+      "resolvedAfterMs": 3075
+    },
+    {
+      "index": 2,
+      "visitorId": "oeu1773232831046r0.6047222461871973",
+      "zs": "25b505f6-877c-47f4-9c11-3092d854bbff",
+      "zi": "cb617e33-fad0-4d25-a738-7a5c268dfe2a",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.207Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.710Z",
+          "elapsedMs": 2503,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.282Z",
+          "elapsedMs": 3075,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.282Z",
+      "resolvedAfterMs": 3075
+    },
+    {
+      "index": 3,
+      "visitorId": "oeu1773232831046r0.05745785654565028",
+      "zs": "f8c8b31a-fd1c-469d-adb3-bfee24b42b18",
+      "zi": "2bf7de1a-4785-4b3b-aedf-9142695293e9",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.148Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.713Z",
+          "elapsedMs": 2565,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.273Z",
+          "elapsedMs": 3125,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.273Z",
+      "resolvedAfterMs": 3125
+    },
+    {
+      "index": 4,
+      "visitorId": "oeu1773232831047r0.7480989445996717",
+      "zs": "a58b67fd-fdf6-4920-b6ce-c1c3a64fe699",
+      "zi": "5b6ec5fd-a7d5-4932-bab0-ef01872ff4be",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.142Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.686Z",
+          "elapsedMs": 2544,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.260Z",
+          "elapsedMs": 3118,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.260Z",
+      "resolvedAfterMs": 3118
+    },
+    {
+      "index": 5,
+      "visitorId": "oeu1773232831048r0.6776621953685971",
+      "zs": "d78c2141-2ad3-44b2-8890-498944fa7336",
+      "zi": "03c2abfb-5340-4729-95e6-524a07ddc6a2",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.148Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.703Z",
+          "elapsedMs": 2555,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.271Z",
+          "elapsedMs": 3123,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.271Z",
+      "resolvedAfterMs": 3123
+    },
+    {
+      "index": 6,
+      "visitorId": "oeu1773232831048r0.9920890970434602",
+      "zs": "dc189a88-07d4-4a7c-a99d-8f261adebbd4",
+      "zi": "055675d3-12a2-4332-9b90-d206f29132f9",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.144Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.699Z",
+          "elapsedMs": 2554,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.269Z",
+          "elapsedMs": 3124,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.269Z",
+      "resolvedAfterMs": 3124
+    },
+    {
+      "index": 7,
+      "visitorId": "oeu1773232831049r0.8489783825585244",
+      "zs": "109ed5e4-ed8a-43e2-bfbc-3c68d5266c2d",
+      "zi": "a87e1862-d0cd-4fef-8cb1-38074de8e964",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.157Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.701Z",
+          "elapsedMs": 2544,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.264Z",
+          "elapsedMs": 3107,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.264Z",
+      "resolvedAfterMs": 3107
+    },
+    {
+      "index": 8,
+      "visitorId": "oeu1773232831051r0.050384552651602244",
+      "zs": "c8e66dbf-deae-409b-9ca1-f1b93c73ad97",
+      "zi": "d98b69f9-00b2-4aa9-9ebf-36e5c3d71aa9",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.149Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.693Z",
+          "elapsedMs": 2544,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.261Z",
+          "elapsedMs": 3112,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.261Z",
+      "resolvedAfterMs": 3112
+    },
+    {
+      "index": 9,
+      "visitorId": "oeu1773232831052r0.9848242829773937",
+      "zs": "c3a8f404-6ce9-4f56-b294-fe5f9735155d",
+      "zi": "943b62ff-381c-494f-adb2-e3fcf821896d",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-11T12:40:31.154Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-11T12:40:33.712Z",
+          "elapsedMs": 2556,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-11T12:40:34.280Z",
+          "elapsedMs": 3124,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-11T12:40:34.280Z",
+      "resolvedAfterMs": 3124
+    }
+  ]
+}

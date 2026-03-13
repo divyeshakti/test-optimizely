@@ -1,0 +1,130 @@
+[
+  {
+    "batchId": "aaa51c91-3c4f-4f1b-b604-eb68cab70339",
+    "filename": "results-2026-03-12T11-27-38.json",
+    "startedAt": "2026-03-12T11:27:38.855Z",
+    "finishedAt": "2026-03-12T11:27:41.993Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 3099
+  },
+  {
+    "batchId": "f4f921e0-db9e-48af-97fc-5c8e78d76e44",
+    "filename": "results-2026-03-12T11-26-44.json",
+    "startedAt": "2026-03-12T11:26:44.871Z",
+    "finishedAt": null,
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "running"
+  },
+  {
+    "batchId": "215212f1-ef4e-44f3-bd88-687791e88519",
+    "filename": "results-2026-03-11T13-07-49.json",
+    "startedAt": "2026-03-11T13:07:49.054Z",
+    "finishedAt": "2026-03-11T13:07:52.258Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 2976
+  },
+  {
+    "batchId": "36697066-0de6-423f-b4c3-42ab608f4093",
+    "filename": "results-2026-03-11T12-50-18.json",
+    "startedAt": "2026-03-11T12:50:18.846Z",
+    "finishedAt": "2026-03-11T12:50:23.111Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 3086
+  },
+  {
+    "batchId": "551bbd75-f8c8-49eb-a36a-b49ad5217f81",
+    "filename": "results-2026-03-11T12-50-02.json",
+    "startedAt": "2026-03-11T12:50:02.218Z",
+    "finishedAt": "2026-03-11T12:50:05.436Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 3043
+  },
+  {
+    "batchId": "ddd8cb3b-5c97-4e7f-a919-fac5b120aa14",
+    "filename": "results-2026-03-11T12-49-46.json",
+    "startedAt": "2026-03-11T12:49:46.699Z",
+    "finishedAt": "2026-03-11T12:49:50.351Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 3045
+  },
+  {
+    "batchId": "5db2eb96-1c89-416b-a719-a42e9ea28253",
+    "filename": "results-2026-03-11T12-49-36.json",
+    "startedAt": "2026-03-11T12:49:36.089Z",
+    "finishedAt": "2026-03-11T12:49:39.629Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 3379
+  },
+  {
+    "batchId": "5f462c74-8aa6-4075-b94d-624edff51208",
+    "filename": "results-2026-03-11T12-49-02.json",
+    "startedAt": "2026-03-11T12:49:02.330Z",
+    "finishedAt": "2026-03-11T12:49:19.007Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 16331
+  },
+  {
+    "batchId": "bb72a848-3634-47dc-98df-1836d527f3c6",
+    "filename": "results-2026-03-11T12-48-40.json",
+    "startedAt": "2026-03-11T12:48:40.414Z",
+    "finishedAt": "2026-03-11T12:48:49.772Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 8757
+  },
+  {
+    "batchId": "178284d4-61b3-4b9c-9daf-a237641cc733",
+    "filename": "results-2026-03-11T12-47-50.json",
+    "startedAt": "2026-03-11T12:47:50.733Z",
+    "finishedAt": "2026-03-11T12:47:56.090Z",
+    "count": 10,
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "status": "done",
+    "resolved": 10,
+    "avgMs": 4093
+  }
+]

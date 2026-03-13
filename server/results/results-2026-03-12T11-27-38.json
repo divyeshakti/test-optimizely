@@ -1,0 +1,598 @@
+{
+  "batchId": "aaa51c91-3c4f-4f1b-b604-eb68cab70339",
+  "filename": "results-2026-03-12T11-27-38.json",
+  "startedAt": "2026-03-12T11:27:38.855Z",
+  "finishedAt": "2026-03-12T11:27:41.993Z",
+  "config": {
+    "count": 10,
+    "writeKey": "18116ee9-c6e4-4f8a-9345-2efe472deccf",
+    "audienceNames": [
+      "zeotap_1480882676452872192"
+    ],
+    "pollIntervalMs": 500,
+    "timeoutMs": 120000,
+    "pageUrl": "http://127.0.0.1:8080/"
+  },
+  "visitors": [
+    {
+      "index": 0,
+      "visitorId": "oeu1773314858859r0.5426832633380856",
+      "zs": "0d5f9e19-5ecb-4466-b638-6da66f00d494",
+      "zi": "0726b983-dcca-4dbe-9b03-0547b4285ddd",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.987Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.120Z",
+          "elapsedMs": 261,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.685Z",
+          "elapsedMs": 826,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.247Z",
+          "elapsedMs": 1388,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.816Z",
+          "elapsedMs": 1957,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.389Z",
+          "elapsedMs": 2530,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.966Z",
+          "elapsedMs": 3107,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.966Z",
+      "resolvedAfterMs": 3107,
+      "eventRttMs": 128
+    },
+    {
+      "index": 1,
+      "visitorId": "oeu1773314858877r0.13122411814773427",
+      "zs": "28fea539-9390-4a37-b71e-1f1499425d56",
+      "zi": "eefecbbd-6c3e-4710-be74-3906c40152f8",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.993Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.135Z",
+          "elapsedMs": 258,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.693Z",
+          "elapsedMs": 816,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.267Z",
+          "elapsedMs": 1390,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.835Z",
+          "elapsedMs": 1958,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.399Z",
+          "elapsedMs": 2522,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.963Z",
+          "elapsedMs": 3086,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.963Z",
+      "resolvedAfterMs": 3086,
+      "eventRttMs": 116
+    },
+    {
+      "index": 2,
+      "visitorId": "oeu1773314858878r0.7757696245257983",
+      "zs": "a7615716-edb2-4b2e-b42d-6c18f8543696",
+      "zi": "16515e34-bbf1-4724-bbc0-64c0b6d7e4b4",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:39.002Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.145Z",
+          "elapsedMs": 267,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.716Z",
+          "elapsedMs": 838,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.281Z",
+          "elapsedMs": 1403,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.851Z",
+          "elapsedMs": 1973,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.414Z",
+          "elapsedMs": 2536,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.992Z",
+          "elapsedMs": 3114,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.992Z",
+      "resolvedAfterMs": 3114,
+      "eventRttMs": 124
+    },
+    {
+      "index": 3,
+      "visitorId": "oeu1773314858878r0.3221093016251404",
+      "zs": "c1b1c0ac-ca22-46f1-be5a-1b8651524d64",
+      "zi": "76aaaf73-3403-4179-89b4-663511aecf51",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.988Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.119Z",
+          "elapsedMs": 240,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.683Z",
+          "elapsedMs": 804,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.249Z",
+          "elapsedMs": 1370,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.823Z",
+          "elapsedMs": 1944,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.387Z",
+          "elapsedMs": 2508,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.960Z",
+          "elapsedMs": 3081,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.961Z",
+      "resolvedAfterMs": 3082,
+      "eventRttMs": 109
+    },
+    {
+      "index": 4,
+      "visitorId": "oeu1773314858879r0.01789021058300655",
+      "zs": "633f66e3-57da-43ca-a20c-9b977f347461",
+      "zi": "49fa3dd8-e0a5-476c-811c-5a4dd1d483dd",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.996Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.134Z",
+          "elapsedMs": 255,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.695Z",
+          "elapsedMs": 816,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.257Z",
+          "elapsedMs": 1378,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.832Z",
+          "elapsedMs": 1953,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.407Z",
+          "elapsedMs": 2528,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.977Z",
+          "elapsedMs": 3098,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.977Z",
+      "resolvedAfterMs": 3098,
+      "eventRttMs": 117
+    },
+    {
+      "index": 5,
+      "visitorId": "oeu1773314858880r0.3269794783102471",
+      "zs": "45d04e05-3ec9-4465-bf0a-822c426e6ed9",
+      "zi": "610163ef-bc46-4eda-99dd-614a164cae39",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:39.000Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.148Z",
+          "elapsedMs": 268,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.711Z",
+          "elapsedMs": 831,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.278Z",
+          "elapsedMs": 1398,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.836Z",
+          "elapsedMs": 1956,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.403Z",
+          "elapsedMs": 2523,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.970Z",
+          "elapsedMs": 3090,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.970Z",
+      "resolvedAfterMs": 3090,
+      "eventRttMs": 120
+    },
+    {
+      "index": 6,
+      "visitorId": "oeu1773314858881r0.3093433987056944",
+      "zs": "fed9889c-3ae2-4a3f-8af3-21e518a06ee7",
+      "zi": "0a7fe553-954f-4bfd-b886-86bb8e261f7e",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.995Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.142Z",
+          "elapsedMs": 261,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.699Z",
+          "elapsedMs": 818,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.265Z",
+          "elapsedMs": 1384,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.831Z",
+          "elapsedMs": 1950,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.408Z",
+          "elapsedMs": 2527,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.991Z",
+          "elapsedMs": 3110,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.991Z",
+      "resolvedAfterMs": 3110,
+      "eventRttMs": 114
+    },
+    {
+      "index": 7,
+      "visitorId": "oeu1773314858881r0.4797134170633226",
+      "zs": "a4c874a3-8be0-413c-8dc0-f68eda53d80c",
+      "zi": "47bb873c-a293-4f42-bcce-69b27f1c2e12",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.998Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.148Z",
+          "elapsedMs": 266,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.718Z",
+          "elapsedMs": 836,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.277Z",
+          "elapsedMs": 1395,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.845Z",
+          "elapsedMs": 1963,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.416Z",
+          "elapsedMs": 2534,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.992Z",
+          "elapsedMs": 3110,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.992Z",
+      "resolvedAfterMs": 3110,
+      "eventRttMs": 116
+    },
+    {
+      "index": 8,
+      "visitorId": "oeu1773314858882r0.3961339908401684",
+      "zs": "2830593e-6aa6-420e-8f95-6e87050498a7",
+      "zi": "84ed1650-0e80-4a18-bcfc-df774151e4c0",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:39.003Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.144Z",
+          "elapsedMs": 262,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.717Z",
+          "elapsedMs": 835,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.274Z",
+          "elapsedMs": 1392,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.838Z",
+          "elapsedMs": 1956,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.411Z",
+          "elapsedMs": 2529,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.990Z",
+          "elapsedMs": 3108,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.990Z",
+      "resolvedAfterMs": 3108,
+      "eventRttMs": 121
+    },
+    {
+      "index": 9,
+      "visitorId": "oeu1773314858883r0.8805699153883895",
+      "zs": "e96b0d8c-43f8-432d-baa8-6ef988e67aad",
+      "zi": "3c5f9c3a-8d89-4a66-be54-7be6c561e56d",
+      "status": "resolved",
+      "eventFiredAt": "2026-03-12T11:27:38.997Z",
+      "eventHttpStatus": 204,
+      "eventError": null,
+      "polls": [
+        {
+          "ts": "2026-03-12T11:27:39.139Z",
+          "elapsedMs": 256,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:39.701Z",
+          "elapsedMs": 818,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.260Z",
+          "elapsedMs": 1377,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:40.833Z",
+          "elapsedMs": 1950,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.402Z",
+          "elapsedMs": 2519,
+          "audiences": [],
+          "error": null
+        },
+        {
+          "ts": "2026-03-12T11:27:41.968Z",
+          "elapsedMs": 3085,
+          "audiences": [
+            {
+              "name": "zeotap_1480882676452872192",
+              "state": "qualified",
+              "description": "zeotap - Optimizely ID Test",
+              "is_ready": true
+            }
+          ],
+          "error": null
+        }
+      ],
+      "resolvedAt": "2026-03-12T11:27:41.968Z",
+      "resolvedAfterMs": 3085,
+      "eventRttMs": 114
+    }
+  ]
+}

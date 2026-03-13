@@ -586,6 +586,18 @@
           </div>
         </div>
         <div class="card">
+          <div class="card-header"><h2>Set Visitor ID</h2></div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Override the Optimizely visitor ID by setting the <code>optimizelyEndUserId</code> cookie, then reload the page.</p>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input type="text" id="set-visitor-id-input" placeholder="Enter visitor ID" style="flex:1;min-width:200px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--text)">
+              <button class="btn btn-sm btn-primary" id="set-visitor-id-btn">Set &amp; Reload</button>
+              <button class="btn btn-sm btn-secondary" id="clear-visitor-id-btn">Clear Cookie</button>
+            </div>
+            <div id="set-visitor-id-status" style="margin-top:8px;font-size:13px;color:var(--text-muted)"></div>
+          </div>
+        </div>
+        <div class="card">
           <div class="card-header"><h2>Visitor ID</h2></div>
           <div class="card-body"><pre id="visitor-id">Waiting for data...</pre></div>
         </div>
@@ -1304,6 +1316,31 @@ return results;</textarea>
         buildExperimentsTable();
         runVerification();
       }
+
+      // -- Set Visitor ID via optimizelyEndUserId cookie --
+      document.getElementById('set-visitor-id-btn').addEventListener('click', function() {
+        var val = document.getElementById('set-visitor-id-input').value.trim();
+        if (!val) {
+          document.getElementById('set-visitor-id-status').textContent = 'Please enter a visitor ID.';
+          return;
+        }
+        document.cookie = 'optimizelyEndUserId=' + encodeURIComponent(val) + '; path=/; max-age=31536000';
+        document.getElementById('set-visitor-id-status').textContent = 'Cookie set. Reloading...';
+        setTimeout(function() { location.reload(); }, 600);
+      });
+      document.getElementById('clear-visitor-id-btn').addEventListener('click', function() {
+        document.cookie = 'optimizelyEndUserId=; path=/; max-age=0';
+        document.getElementById('set-visitor-id-status').textContent = 'Cookie cleared. Reloading...';
+        setTimeout(function() { location.reload(); }, 600);
+      });
+      // Pre-fill input with current cookie value if present
+      (function() {
+        var match = document.cookie.match(/(?:^|;\s*)optimizelyEndUserId=([^;]+)/);
+        if (match) {
+          document.getElementById('set-visitor-id-input').value = decodeURIComponent(match[1]);
+          document.getElementById('set-visitor-id-status').textContent = 'Current cookie value shown above.';
+        }
+      })();
 
       document.getElementById('refresh-btn').addEventListener('click', refreshOptimizelyData);
       document.getElementById('run-verification-btn').addEventListener('click', runVerification);

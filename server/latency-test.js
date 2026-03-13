@@ -108,7 +108,7 @@ async function runVisitor(index, batchMeta) {
   // the moment Zeotap receives it, not after we get the HTTP response back.
   const payload = {
     events: [{
-      event: { id: shortId(), eventName: 'pageView', eventTimestamp: Date.now() },
+      event: { id: shortId(), eventName: 'testEventName', eventTimestamp: Date.now() },
       user: { zs, zi, zi_domain: '.127.0.0.1' },
       page: {
         path: '/',
